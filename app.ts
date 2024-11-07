@@ -23,9 +23,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(router);
-app.use((err: CustomError, req: Request, res: Response) => {
-    handleError(err, res);
-});
 
 app.listen(port, host, () => {
     console.log(`Listening on http://localhost:${port}`);
