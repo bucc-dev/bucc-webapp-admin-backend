@@ -6,21 +6,16 @@ export interface CustomError extends Error {
 
 export class ErrorHandler extends Error implements CustomError {
     public statusCode: number = 500;
-    public message: string;
 
     constructor(statusCode: number, message: string) {
-        super();
+        super(message);
         this.statusCode = statusCode;
-        this.message = message;
     }
 }
 
 export const handleError = (error: CustomError, response: Response) => {
-    let { statusCode, message } = error;
-    if (!statusCode) {
-        // default
-        statusCode = 500;
-    }
+    let statusCode = error.statusCode || 500;
+    const message = error.message || "Internal Server Error";
 
     // mongoose error status codes
     if (error.name === 'ValidationError') {
