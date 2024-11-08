@@ -15,6 +15,9 @@ class UserController {
 			if (!email || !password)
 				throw new ErrorHandler(400, 'Email or Password is missing');
 
+			if (typeof email !== 'string' || typeof password !== 'string')
+				throw new ErrorHandler(400, 'Invalid email or password');
+
 			const user: IUser | null = await User.findOne({ email });
 
 			if (!user || !user.isPasswordCorrect(password)) {
