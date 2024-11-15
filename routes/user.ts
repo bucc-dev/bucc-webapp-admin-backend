@@ -6,6 +6,7 @@ import { authLimiter, generalLimiter } from "../utils/limiters";
 const userRouter = Router();
 
 userRouter.route('/login').post(authLimiter, UserController.login);
-userRouter.route('/logout').post(authMiddleware, UserController.logout);
+userRouter.route('/logout').post(authMiddleware, generalLimiter, UserController.logout);
+userRouter.route('/logout-all-devices').post(authMiddleware, generalLimiter, UserController.logoutAllDevices);
 
 export default userRouter;
