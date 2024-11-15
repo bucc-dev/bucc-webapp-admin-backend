@@ -1,9 +1,10 @@
 import { JwtPayload } from "jsonwebtoken";
-
-
+import mongoose from "mongoose";
 
 export interface CustomJwtPayload extends JwtPayload {
-    _id: string;
+    _id: mongoose.Types.ObjectId;
+    email: string;
+    refreshed?: boolean;
 }
 
 declare global {

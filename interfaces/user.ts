@@ -1,6 +1,7 @@
-import mongoose, { Document } from 'mongoose';
+import mongoose, { Document, mongo } from 'mongoose';
 
 interface IUser extends Document {
+    _id: mongoose.Types.ObjectId; 
     firstname: string;
     lastname: string;
     fullname?: string;
@@ -19,6 +20,7 @@ interface IUser extends Document {
     pendingRequests: Array<mongoose.Types.ObjectId>;
 
     isPasswordCorrect(password: string): Promise<boolean>;
+    generateRefreshToken(): Promise<string>;
 }
 
 export default IUser;

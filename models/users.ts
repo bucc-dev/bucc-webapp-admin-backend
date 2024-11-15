@@ -1,5 +1,10 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { config } from 'dotenv';
+import { CustomJwtPayload } from '../interfaces';
+
+config();
 
 const UserSchema = new mongoose.Schema({
 	firstname: {
@@ -112,7 +117,15 @@ UserSchema.methods.isPasswordCorrect = async function (
 	return await bcrypt.compare(password, this.password);
 };
 
-// UserSchema.methods.generateAcessToken =
+UserSchema.methods.generateRefreshToken = async function (): Promise<string> {
+	const payload: CustomJwtPayload = { _id: this._id, email: this.email };
+	const refreshToken: string = jwt.sign(payload, process.env.JWT_SECRET as string, { expiresIn: '7d'});
+
+	this.refreshToken = refreshToken;
+	await this.save();
+
+	return refreshToken;
+};
 
 // has access method
 
