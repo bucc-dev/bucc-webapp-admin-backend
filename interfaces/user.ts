@@ -1,4 +1,5 @@
 import mongoose, { Document, mongo } from 'mongoose';
+import { CustomJwtPayload } from '.';
 
 interface IUser extends Document {
     _id: mongoose.Types.ObjectId; 
@@ -10,7 +11,7 @@ interface IUser extends Document {
     accessLevel: 1 | 2;
     email: string;
     isVerified: boolean;
-    refreshToken: string;
+    refreshTokens: string[];
     creatorId: string | null;
     createdAt: Date;
     updatedAt: Date;
@@ -20,7 +21,7 @@ interface IUser extends Document {
     pendingRequests: Array<mongoose.Types.ObjectId>;
 
     isPasswordCorrect(password: string): Promise<boolean>;
-    generateRefreshToken(): Promise<string>;
+    generateRefreshToken(payload: CustomJwtPayload): Promise<string>;
 }
 
 export default IUser;
