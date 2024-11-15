@@ -54,9 +54,9 @@ const UserSchema = new mongoose.Schema({
 		type: Boolean,
 		default: false,
 	},
-	refreshToken: {
-		type: String,
-		default: '',
+	refreshTokens: {
+		type: [String],
+		default: [],
 	},
 	creatorId: {
 		type: mongoose.Schema.Types.ObjectId,
@@ -117,14 +117,13 @@ UserSchema.methods.isPasswordCorrect = async function (
 	return await bcrypt.compare(password, this.password);
 };
 
-UserSchema.methods.generateRefreshToken = async function (): Promise<string> {
-	const payload: CustomJwtPayload = { _id: this._id, email: this.email };
-	const refreshToken: string = jwt.sign(payload, process.env.JWT_SECRET as string, { expiresIn: '7d'});
+UserSchema.methods.generateRefreshToken = async function (payload: CustomJwtPayload): Promise<string> {
+    const refreshToken: string = jwt.sign(payload, process.env.JWT_SECRET as string, { expiresIn: '7d' });
 
-	this.refreshToken = refreshToken;
-	await this.save();
+    this.refreshTokens.push(refreshToken);
+    await this.save();
 
-	return refreshToken;
+    return refreshToken;
 };
 
 // has access method
