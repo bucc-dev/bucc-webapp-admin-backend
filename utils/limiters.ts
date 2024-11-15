@@ -4,33 +4,35 @@ import { Response, Request, NextFunction } from "express";
 const rateLimitHandler = (req: Request, res: Response, next: NextFunction) => {
     const url: string = req.originalUrl;
     let message: string;
-    let logMessage: string = `Rate limit exceeded for IP: ${req.ip}, on URL: ${url}, with method: ${req.method}`;
+    let time: string = '1 minute'; // default
 
     if (url.includes('login')) {
         message = 'login attempts';
-        logMessage = `Rate limit exceeded for IP: ${req.ip}, on URL: ${url}, with method: ${req.method} \n too many login attempts with ${req.body?.email}`;
     } else if (url.includes('signup')) {
         message = 'signup attempts';
     } else {
         message = 'requests';
+        time = '5 minutes';
     }
 
+    // wip
+    const logMessage = `Rate limit exceeded for IP: ${req.ip}, on URL: ${url}, with method: ${req.method}: too many ${message} with [` + `${req.body?.email ? `email: ${req.body.email}` : `ID: ${req?.user?._id}`}] \n`;
     console.log(logMessage);
 
     res.status(429).json({
         status: 'fail',
-        message: `Too many ${message}, please try again after 5 minutes`
+        message: `Too many ${message}, please try again after ${time}`
     });
 }
 
 export const authLimiter = rateLimit({
-    windowMs: 5 * 60 * 1000, // 5 minutes
-    max: 10,
+    windowMs: 1 * 60 * 1000, // 5 per minute
+    max: 5,
     handler: rateLimitHandler
 });
 
 export const generalLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
+    windowMs: 5 * 60 * 1000, // 100 every 5 minutes
     max: 100,
     handler: rateLimitHandler
 });
