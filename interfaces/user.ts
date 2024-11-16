@@ -7,12 +7,12 @@ interface IUser extends Document {
     lastname: string;
     fullname?: string;
     password: string;
-    role: 'admin' | 'super_admin';
+    role: 'senator' | 'senate_president';
     accessLevel: 1 | 2;
     email: string;
     isVerified: boolean;
     refreshTokens: string[];
-    creatorId: string | null;
+    creatorId: mongoose.Types.ObjectId | null;
     createdAt: Date;
     updatedAt: Date;
     courseMaterials: Array<mongoose.Types.ObjectId>;
