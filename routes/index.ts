@@ -18,4 +18,8 @@ router.all('*', (req: Request, res: Response, next: NextFunction) => {
     });
 });
 
+router.use('/api/v1/ping', (req, res) => {
+    return res.status(200).end();
+});
+
 export default router;
