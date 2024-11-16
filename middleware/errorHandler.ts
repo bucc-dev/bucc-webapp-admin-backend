@@ -4,6 +4,10 @@ export interface CustomError extends Error {
     statusCode: number;
 }
 
+/**
+ * Custom error handler class for HTTP responses that extends the built-in Error class.
+ * Includes a status code for HTTP responses.
+ */
 export class ErrorHandler extends Error implements CustomError {
     public statusCode: number = 500;
 
@@ -13,16 +17,23 @@ export class ErrorHandler extends Error implements CustomError {
     }
 }
 
+/**
+ * Handles errors by sending a graceful HTTP response.
+ * @param error - The custom error object.
+ * @param response - The HTTP response object.
+ */
 export const handleError = (error: CustomError, response: Response) => {
     let statusCode = error.statusCode || 500;
-    const message = error.message || "Internal Server Error";
+    let message = error.message || "Internal Server Error";
 
     // mongoose error status codes
     if (error.name === 'ValidationError') {
+        const firstError: string = error.message.split(',')[0];
+        message = firstError.split(':').slice(-1)[0].trim();
         statusCode = 422; // Unprocessable Entity for validation errors
     }
 
-
+    console.log(error);
     response.status(statusCode).json({
       status: "fail",
       message
