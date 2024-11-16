@@ -25,14 +25,20 @@ const rateLimitHandler = (req: Request, res: Response, next: NextFunction) => {
     });
 }
 
+/**
+ * Limits requests to 5 per minute.
+ */
 export const authLimiter = rateLimit({
-    windowMs: 1 * 60 * 1000, // 5 per minute
+    windowMs: 1 * 60 * 1000,
     max: 5,
     handler: rateLimitHandler
 });
 
+/**
+ * Limits requests to 100 every 5 minutes.
+ */
 export const generalLimiter = rateLimit({
-    windowMs: 5 * 60 * 1000, // 100 every 5 minutes
+    windowMs: 5 * 60 * 1000,
     max: 100,
     handler: rateLimitHandler
 });
