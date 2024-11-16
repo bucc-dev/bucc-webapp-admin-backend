@@ -6,6 +6,16 @@ import User from '../models/users';
 import IUser from '../interfaces/user';
 import mongoose from 'mongoose';
 
+/**
+ * Middleware to authenticate users using JWT tokens.
+ * Verifies access token and refreshes it if expired.
+ * Attaches user payload to request object.
+ * Clears invalid tokens and handles errors.
+ * 
+ * @param {Request} req - Express request object.
+ * @param {Response} res - Express response object.
+ * @param {NextFunction} next - Express next middleware function.
+ */
 const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     const accessToken: string | undefined = req.cookies?.accessToken;
     const refreshToken: string | undefined = req.cookies?.refreshToken;
