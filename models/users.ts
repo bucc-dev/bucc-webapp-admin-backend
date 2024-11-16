@@ -1,22 +1,23 @@
-import mongoose from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { config } from 'dotenv';
 import { CustomJwtPayload } from '../interfaces';
+import IUser from '../interfaces/user';
 
 config();
 
-const UserSchema = new mongoose.Schema({
+const UserSchema: Schema<IUser> = new mongoose.Schema({
 	firstname: {
 		type: String,
 		required: true,
-		minlength: [1, 'Firstname cannot be empty'],
+		minlength: [1, 'Input a valid firstname'],
 		maxlength: [25, 'Firstname is too long'],
 	},
 	lastname: {
 		type: String,
 		required: true,
-		minlength: [1, 'Lastname cannot be empty'],
+		minlength: [1, 'Input a valid lastname'],
 		maxlength: [25, 'Lastname is too long'],
 	},
 	fullname: {
@@ -33,13 +34,14 @@ const UserSchema = new mongoose.Schema({
 	},
 	role: {
 		type: String,
-		enum: ['admin', 'super_admin'],
+		enum: ['senator', 'senate_president'],
 		required: true,
 	},
 	accessLevel: {
 		type: Number,
 		required: true,
 		enum: [1, 2], // 1 for admin/senator, 2 for super admin/SP
+		default: 1
 	},
 	email: {
 		type: String,
@@ -102,6 +104,11 @@ UserSchema.pre('save', async function (next) {
 		this.fullname = `${this.lastname} ${this.firstname}`;
 	}
 
+	if (this.isNew) {
+		if (this.role === 'senate_president')
+			this.accessLevel = 2;
+	}
+
 	if (this.isModified('password') || this.isNew) {
 		this.password = await bcrypt.hash(this.password, 10);
 	}
@@ -111,12 +118,24 @@ UserSchema.pre('save', async function (next) {
 });
 
 // methods
+/**
+ * Checks if the provided password matches the stored password.
+ * 
+ * @param {string} password - The password to check.
+ * @returns {Promise<boolean>} - Returns true if the password is correct, otherwise false.
+ */
 UserSchema.methods.isPasswordCorrect = async function (
-	password: string
+    password: string
 ): Promise<boolean> {
-	return await bcrypt.compare(password, this.password);
+    return await bcrypt.compare(password, this.password);
 };
 
+/**
+ * Generates a new refresh token for the user and saves changes..
+ * 
+ * @param {CustomJwtPayload} payload - The payload to include in the refresh token.
+ * @returns {Promise<string>} - Returns the generated refresh token.
+ */
 UserSchema.methods.generateRefreshToken = async function (payload: CustomJwtPayload): Promise<string> {
     const refreshToken: string = jwt.sign(payload, process.env.JWT_SECRET as string, { expiresIn: '7d' });
 
@@ -125,6 +144,7 @@ UserSchema.methods.generateRefreshToken = async function (payload: CustomJwtPayl
 
     return refreshToken;
 };
+
 
 // has access method
 
