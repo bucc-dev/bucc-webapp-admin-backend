@@ -4,7 +4,6 @@ import mongoose from 'mongoose';
 export interface CustomJwtPayload extends JwtPayload {
     _id: mongoose.Schema.Types.ObjectId;
     email: string;
-    accessLevel: number;
 }
 
 declare global {

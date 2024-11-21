@@ -8,7 +8,6 @@ interface IUser extends Document {
     fullname?: string;
     password: string;
     role: 'admin' | 'super_admin';
-    accessLevel: 1 | 2;
     email: string;
     isVerified: boolean;
     refreshTokens: string[];

@@ -48,7 +48,7 @@ const authMiddleware = async (req: Request, res: Response, next: NextFunction) =
                 try {
                     user.refreshTokens = user.refreshTokens.filter(rt => rt !== refreshToken);
 
-                    const payload: CustomJwtPayload = { _id: user._id, email: user.email, accessLevel: user.accessLevel };
+                    const payload: CustomJwtPayload = { _id: user._id, email: user.email };
 
                     const newRefreshToken: string = await user.generateRefreshToken(payload);
                     const newAccessToken: string = jwt.sign(payload, secret, { expiresIn: '5min' });
