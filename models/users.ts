@@ -7,7 +7,7 @@ import IUser from '../interfaces/user';
 
 config();
 
-const UserSchema: Schema<IUser> = new mongoose.Schema({
+const UserSchema = new mongoose.Schema({
 	firstname: {
 		type: String,
 		required: true,
@@ -34,14 +34,14 @@ const UserSchema: Schema<IUser> = new mongoose.Schema({
 	},
 	role: {
 		type: String,
-		enum: ['senator', 'senate_president'],
+		enum: ['admin', 'super_admin'],
 		required: true,
 	},
 	accessLevel: {
 		type: Number,
 		required: true,
 		enum: [1, 2], // 1 for admin/senator, 2 for super admin/SP
-		default: 1
+		default: 1,
 	},
 	email: {
 		type: String,
@@ -64,14 +64,6 @@ const UserSchema: Schema<IUser> = new mongoose.Schema({
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'User',
 		default: null,
-	},
-	createdAt: {
-		type: Date,
-		default: () => new Date(),
-	},
-	updatedAt: {
-		type: Date,
-		default: () => new Date(),
 	},
 	courseMaterials: [
 		{
@@ -97,7 +89,7 @@ const UserSchema: Schema<IUser> = new mongoose.Schema({
 			ref: 'Request',
 		},
 	],
-});
+}, { timestamps: true });
 
 UserSchema.pre('save', async function (next) {
 	if (this.isModified(['firstname', 'lastname']) || this.isNew) {
@@ -105,49 +97,52 @@ UserSchema.pre('save', async function (next) {
 	}
 
 	if (this.isNew) {
-		if (this.role === 'senate_president')
-			this.accessLevel = 2;
+		if (this.role === 'super_admin') this.accessLevel = 2;
 	}
 
 	if (this.isModified('password') || this.isNew) {
 		this.password = await bcrypt.hash(this.password, 10);
 	}
 
-	this.updatedAt = new Date();
 	next();
 });
 
 // methods
 /**
  * Checks if the provided password matches the stored password.
- * 
+ *
  * @param {string} password - The password to check.
  * @returns {Promise<boolean>} - Returns true if the password is correct, otherwise false.
  */
 UserSchema.methods.isPasswordCorrect = async function (
-    password: string
+	password: string
 ): Promise<boolean> {
-    return await bcrypt.compare(password, this.password);
+	return await bcrypt.compare(password, this.password);
 };
 
 /**
  * Generates a new refresh token for the user and saves changes..
- * 
+ *
  * @param {CustomJwtPayload} payload - The payload to include in the refresh token.
  * @returns {Promise<string>} - Returns the generated refresh token.
  */
-UserSchema.methods.generateRefreshToken = async function (payload: CustomJwtPayload): Promise<string> {
-    const refreshToken: string = jwt.sign(payload, process.env.JWT_SECRET as string, { expiresIn: '7d' });
+UserSchema.methods.generateRefreshToken = async function (
+	payload: CustomJwtPayload
+): Promise<string> {
+	const refreshToken: string = jwt.sign(
+		payload,
+		process.env.JWT_SECRET as string,
+		{ expiresIn: '7d' }
+	);
 
-    this.refreshTokens.push(refreshToken);
-    await this.save();
+	this.refreshTokens.push(refreshToken);
+	await this.save();
 
-    return refreshToken;
+	return refreshToken;
 };
-
 
 // has access method
 
-const User = mongoose.model('User', UserSchema);
+const User = mongoose.model<IUser>('User', UserSchema);
 
 export default User;
