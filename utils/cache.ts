@@ -34,6 +34,7 @@ class RedisClient {
 
 		this.client.connect();
 
+		// keep redis free server alive
 		setInterval(() => {
 			this.client
 				.ping()
