@@ -84,6 +84,7 @@ class UserController {
 				const refreshToken: string = await user.generateRefreshToken(
 					payload
 				);
+				
 
 				res.cookie('accessToken', accessToken, {
 					maxAge: 5 * 60 * 1000,
