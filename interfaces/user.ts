@@ -1,24 +1,22 @@
-import mongoose, { Document, mongo } from 'mongoose';
+import mongoose, { Document } from 'mongoose';
 import { CustomJwtPayload } from '.';
 
 interface IUser extends Document {
-    _id: mongoose.Types.ObjectId; 
+    _id: mongoose.Schema.Types.ObjectId; 
     firstname: string;
     lastname: string;
     fullname?: string;
     password: string;
-    role: 'senator' | 'senate_president';
+    role: 'admin' | 'super_admin';
     accessLevel: 1 | 2;
     email: string;
     isVerified: boolean;
     refreshTokens: string[];
-    creatorId: mongoose.Types.ObjectId | null;
-    createdAt: Date;
-    updatedAt: Date;
-    courseMaterials: Array<mongoose.Types.ObjectId>;
-    announcements: Array<mongoose.Types.ObjectId>;
-    notifications: Array<mongoose.Types.ObjectId>;
-    pendingRequests: Array<mongoose.Types.ObjectId>;
+    creatorId: mongoose.Schema.Types.ObjectId | null;
+    courseMaterials: [mongoose.Schema.Types.ObjectId];
+    announcements: [mongoose.Schema.Types.ObjectId];
+    notifications: [mongoose.Schema.Types.ObjectId];
+    pendingRequests: [mongoose.Schema.Types.ObjectId];
 
     isPasswordCorrect(password: string): Promise<boolean>;
     generateRefreshToken(payload: CustomJwtPayload): Promise<string>;
