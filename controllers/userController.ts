@@ -73,8 +73,7 @@ class UserController {
 
 				const payload: CustomJwtPayload = {
 					_id: user._id,
-					email: user.email,
-					accessLevel: user.accessLevel,
+					email: user.email
 				};
 				const accessToken: string = jwt.sign(
 					payload,
@@ -147,8 +146,7 @@ class UserController {
 			if (user) {
 				const payload: CustomJwtPayload = {
 					_id: user._id,
-					email: user.email,
-					accessLevel: user.accessLevel,
+					email: user.email
 				};
 				const accessToken: string = jwt.sign(
 					payload,
