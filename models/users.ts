@@ -37,12 +37,6 @@ const UserSchema = new mongoose.Schema({
 		enum: ['admin', 'super_admin'],
 		required: true,
 	},
-	accessLevel: {
-		type: Number,
-		required: true,
-		enum: [1, 2], // 1 for admin/senator, 2 for super admin/SP
-		default: 1,
-	},
 	email: {
 		type: String,
 		required: true,
@@ -64,40 +58,12 @@ const UserSchema = new mongoose.Schema({
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'User',
 		default: null,
-	},
-	courseMaterials: [
-		{
-			type: mongoose.Schema.Types.ObjectId,
-			ref: 'CourseMaterial',
-		},
-	],
-	announcements: [
-		{
-			type: mongoose.Schema.Types.ObjectId,
-			ref: 'Announcement',
-		},
-	],
-	notifications: [
-		{
-			type: mongoose.Schema.Types.ObjectId,
-			ref: 'Notification',
-		},
-	],
-	pendingRequests: [
-		{
-			type: mongoose.Schema.Types.ObjectId,
-			ref: 'Request',
-		},
-	],
+	}
 }, { timestamps: true });
 
 UserSchema.pre('save', async function (next) {
 	if (this.isModified(['firstname', 'lastname']) || this.isNew) {
 		this.fullname = `${this.lastname} ${this.firstname}`;
-	}
-
-	if (this.isNew) {
-		if (this.role === 'super_admin') this.accessLevel = 2;
 	}
 
 	if (this.isModified('password') || this.isNew) {
