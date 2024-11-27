@@ -1,5 +1,6 @@
 import mongoose, { Document } from 'mongoose';
 import { CustomJwtPayload } from '.';
+import { permissionAction, permissionResource } from './permission';
 
 interface IUser extends Document {
     _id: mongoose.Schema.Types.ObjectId; 
@@ -19,6 +20,11 @@ interface IUser extends Document {
 
     isPasswordCorrect(password: string): Promise<boolean>;
     generateRefreshToken(payload: CustomJwtPayload): Promise<string>;
+    hasPermission(
+        resource: permissionResource,
+        action: permissionAction,
+        resourceOwnerId: mongoose.Types.ObjectId
+    ): Promise<boolean>;
 }
 
 export default IUser;
