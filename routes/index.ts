@@ -1,11 +1,13 @@
 import { Response, Request, NextFunction, Router } from "express";
 import { handleError, CustomError } from "../middleware/errorHandler";
 import userRouter from "./user";
+import permissionRouter from "./permission";
 
 
 const router: Router = Router();
 
 router.use('/api/v1/users', userRouter);
+router.use('/api/v1/users', permissionRouter);
 
 router.use((err: CustomError, req: Request, res: Response, next: NextFunction) => {
     handleError(err, res);
