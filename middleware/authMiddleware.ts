@@ -6,6 +6,8 @@ import User from '../models/users';
 import IUser from '../interfaces/user';
 import mongoose from 'mongoose';
 
+// check isverified
+
 /**
  * Middleware to authenticate users using JWT tokens.
  * Verifies access token and refreshes it if expired.
@@ -28,6 +30,8 @@ const authMiddleware = async (req: Request, res: Response, next: NextFunction) =
     try {
         const decoded: CustomJwtPayload = jwt.verify(accessToken, secret) as CustomJwtPayload;
         req.user = decoded;
+
+        if (!req.user.isVerified) return next(new ErrorHandler(403, 'User is not verified'));
         return next();
     } catch (error) {
         if (error instanceof TokenExpiredError) {
@@ -48,7 +52,7 @@ const authMiddleware = async (req: Request, res: Response, next: NextFunction) =
                 try {
                     user.refreshTokens = user.refreshTokens.filter(rt => rt !== refreshToken);
 
-                    const payload: CustomJwtPayload = { _id: user._id, email: user.email };
+                    const payload: CustomJwtPayload = { _id: user._id, email: user.email, isVerified: user.isVerified };
 
                     const newRefreshToken: string = await user.generateRefreshToken(payload);
                     const newAccessToken: string = jwt.sign(payload, secret, { expiresIn: '5min' });
