@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/users';
-import IUser from '../interfaces/user';
 import { ErrorHandler } from '../middleware/errorHandler';
 import { config } from 'dotenv';
 import { CustomJwtPayload } from '../interfaces';
@@ -15,11 +14,11 @@ class UserController {
 		const { firstname, lastname, email, password, role } = req.body;
 
 		const requiredFields = [
-			{ field: firstname, name: 'Firstname' },
-			{ field: lastname, name: 'Lastname' },
-			{ field: role, name: 'Role' },
-			{ field: email, name: 'Email' },
-			{ field: password, name: 'Password' },
+			{ field: firstname, name: 'firstname' },
+			{ field: lastname, name: 'lastname' },
+			{ field: role, name: 'role' },
+			{ field: email, name: 'email' },
+			{ field: password, name: 'password' },
 		];
 
 		for (const { field, name } of requiredFields) {
@@ -28,7 +27,7 @@ class UserController {
 
 			if (
 				name === 'Role' &&
-				!['senator', 'senate_president'].includes(field)
+				!['admin', 'super_admin'].includes(field)
 			)
 				return next(new ErrorHandler(400, 'Invalid role'));
 		}
@@ -73,7 +72,8 @@ class UserController {
 
 				const payload: CustomJwtPayload = {
 					_id: user._id,
-					email: user.email
+					email: user.email,
+					isVerified: user.isVerified
 				};
 				const accessToken: string = jwt.sign(
 					payload,
@@ -146,7 +146,8 @@ class UserController {
 			if (user) {
 				const payload: CustomJwtPayload = {
 					_id: user._id,
-					email: user.email
+					email: user.email,
+					isVerified: user.isVerified
 				};
 				const accessToken: string = jwt.sign(
 					payload,
