@@ -6,6 +6,7 @@ import { CustomJwtPayload } from '../interfaces';
 import IUser from '../interfaces/user';
 import Permission from './permissions';
 import {
+	IPermission,
 	permissionAction,
 	permissionResource
 } from '../interfaces/permission';
@@ -137,17 +138,17 @@ UserSchema.methods.hasPermission = async function (
 	resourceOwnerId: mongoose.Types.ObjectId
 ): Promise<boolean> {
 	// Fetch the user's permission document
-	const userPermissionsDocument = await Permission.findOne({ userId: this._id });
+	let permissionDocument = await Permission.findOne({ userId: this._id })  as IPermission;
 
-	if (!userPermissionsDocument) {
-		console.error(
-			`Permission document not found. User email: ${this.email}, ID: ${this._id}`
-		);
-		return false;
+	if (!permissionDocument) {
+		permissionDocument = await this.create({
+			userId: this._id,
+			role: this.role,
+		});
 	}
 
 	// Locate the permission object for the specified resource
-	const resourcePermission = userPermissionsDocument.permissions.find(
+	const resourcePermission = permissionDocument.permissions.find(
 		(permission) => permission.resource === resource
 	);
 
