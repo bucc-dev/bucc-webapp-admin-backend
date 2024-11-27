@@ -1,12 +1,25 @@
 import mongoose, { Document } from 'mongoose';
 
-interface IPermission extends Document {
+export type permissionResource = 'announcements' | 'course_materials' | 'notifications' | 'users';
+export type permissionAction = 'view' | 'update' | 'delete' | 'create' | '*';
+export type role = 'admin' | 'super_admin'
+
+export interface IPermission extends Document {
     userId: mongoose.Schema.Types.ObjectId;
-    role: 'admin' | 'super_admin';
+    role: role;
     permissions: [{
-        resource: 'announcements' | 'course_materials' | 'notifications' | 'users',
-        action: 'view' | 'update' | 'delete' | 'create'
+        resource: permissionResource,
+        actions: {
+            own: permissionAction[],
+            others: permissionAction[]
+        }
     }];
 }
 
-export default IPermission;
+export interface IResourcePermission {
+	resource: permissionResource;
+	actions: {
+		own: permissionAction[];
+		others: permissionAction[];
+	};
+}
