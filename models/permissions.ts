@@ -1,5 +1,5 @@
 import mongoose, { Types } from 'mongoose';
-import { IPermission, IResourcePermission } from '../interfaces/permission';
+import { IPermission, IResourcePermission, IPermissionModel } from '../interfaces/permission';
 import {
 	defaultPermissions,
 	allResourceActions,
@@ -195,6 +195,6 @@ PermissionSchema.statics.revokePermission = async function (
 	await permissionDocument.save();
 };
 
-const Permission = mongoose.model<IPermission>('Permission', PermissionSchema);
+const Permission = mongoose.model<IPermission, IPermissionModel>('Permission', PermissionSchema);
 
 export default Permission;
