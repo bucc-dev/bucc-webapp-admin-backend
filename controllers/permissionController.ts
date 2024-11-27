@@ -2,9 +2,35 @@ import { Request, Response, NextFunction } from 'express';
 import User from '../models/users';
 import Permission from '../models/permissions';
 import { ErrorHandler } from '../middleware/errorHandler';
+import { IPermission } from '../interfaces/permission';
 
 
 class PermissionController {
+    static async getPermission(req: Request, res: Response, next: NextFunction) {
+        try {
+            const user = await User.findById(req.user._id);
+            if (!user) 
+                throw new ErrorHandler(404, 'User does not exist');
+
+            let permissionDocument = (await Permission.findOne({
+                userId: user._id,
+            })) as IPermission;
+            if (!permissionDocument) {
+                permissionDocument = await Permission.create({
+                    userId: user._id,
+                    role: user.role,
+                });
+            }
+
+            return res.status(200).json({
+                status: 'success',
+                data: permissionDocument
+            })
+        } catch (error) {
+            return next(error);
+        } 
+    }
+
 	static async checkPermission(req: Request, res: Response, next: NextFunction) {
         try {
             const user = await User.findById(req.user._id);

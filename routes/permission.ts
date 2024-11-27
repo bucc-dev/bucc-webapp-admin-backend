@@ -5,6 +5,7 @@ import { generalLimiter } from "../utils/limiters";
 
 const permissionRouter = Router();
 
+permissionRouter.route('/me/permissions/get').get(authMiddleware, generalLimiter, PermissionController.getPermission);
 permissionRouter.route('/me/permissions/check').get(authMiddleware, generalLimiter, PermissionController.checkPermission);
 permissionRouter.route('/:targetUserId/permissions/grant').patch(authMiddleware, generalLimiter, PermissionController.grantPermission);
 permissionRouter.route('/:targetUserId/permissions/revoke').patch(authMiddleware, generalLimiter, PermissionController.revokePermission);
