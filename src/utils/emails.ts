@@ -9,9 +9,9 @@ import { ErrorHandler } from '../middleware/errorHandler.js';
  * @param {string} email - The email address of the user.
  * @returns {void | ErrorHandler} - Returns an error handler if an error occurs.
  */
-export function sendVerificationMail(userId: string, email: string): void | ErrorHandler {
+export async function sendVerificationMail(userId: string, email: string): Promise<void | ErrorHandler> {
 	try {
-		const otp = cache.generateAndSaveOTP(userId);
+		const otp = await cache.generateAndSaveOTP(userId);
 
 		const transporter = nodemailer.createTransport({
 			service: 'gmail',
@@ -23,16 +23,16 @@ export function sendVerificationMail(userId: string, email: string): void | Erro
 
 		transporter.sendMail({
 			from: process.env.EMAIL_USER,
-			to: email,
+			to: 'findtamilore@gmail.com',
 			subject: 'Confirm email',
 			html: `<h2>Verify your email address</h2>
-	             <p>Enter the following code to verify your email:</p>
+	             <p>Enter the following otp to verify your email:</p>
 	             <h2>${otp}</h2>
 	             <p>If you didn't request this, contact support.</p>
-	             <h4>DO NOT REPLY TO THIS EMAIL.</h4>`,
+	             <h4>DO NOT REPLY TO THIS AUTOMATED EMAIL.</h4>`,
 		});
 	} catch (error) {
 		console.error(error);
-		return new ErrorHandler(500, 'Request a new token');
+		return new ErrorHandler(500, 'Request a new email');
 	}
 }

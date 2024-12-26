@@ -28,12 +28,12 @@ export const handleError = (error: CustomError, response: Response) => {
 
     // mongoose error status codes
     if (error.name === 'ValidationError') {
-        const firstError: string = error.message.split(',')[0];
+        const firstError: string = error.message.split(/,\s\w+:/)[0];
         message = firstError.split(':').slice(-1)[0].trim();
         statusCode = 422; // Unprocessable Entity for validation errors
     }
 
-    console.log(error);
+    console.error(error); // removed for prod
     response.status(statusCode).json({
       status: "fail",
       message

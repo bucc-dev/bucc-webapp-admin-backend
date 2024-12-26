@@ -2,7 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import User from '../models/users';
 import Permission from '../models/permissions';
 import { ErrorHandler } from '../middleware/errorHandler';
-import { IPermission } from '../interfaces/permission';
+import { IPermission, IResourcePermissionObject, permissionAction } from '../interfaces/permission';
+import { validResourceActions } from '../config/roleConfig';
 
 
 class PermissionController {
@@ -37,24 +38,30 @@ class PermissionController {
             if (!user) 
                 throw new ErrorHandler(404, 'User does not exist');
 
-            const { resource, action, resourceOwnerId } = req.body;
+            const { resource, action } = req.body;
+            const scope: 'own' | 'others' = req.body.scope;
 
             const requiredFields = [
                 { field: resource, name: 'resource' },
                 { field: action, name: 'action' },
-                { field: resourceOwnerId, name: 'resourceOwnerId' },
+                { field: scope, name: 'scope' }
             ];
-    
+
             for (const { field, name } of requiredFields) {
                 if (!field || field.trim() === '')
                     return next(new ErrorHandler(400, `${name} is missing`));
+            }
+
+            const resourceObject: IResourcePermissionObject | undefined = validResourceActions.find((object) => object.resource === resource);
+            if (!resourceObject || !resourceObject.actions[scope].includes(action)) {
+                return next(new ErrorHandler(400, `Invalid. Cannot [action: ${action}] [resource: ${resource}] on [scope: ${scope}]`));
             }
 
             let hasPermission: boolean = true;
             let message: string = 'User has permission';
             let statusCode: number = 200;
 
-            if(!(await user.hasPermission(resource, action, resourceOwnerId))) {
+            if(!(await user.hasPermission(resource, action, scope))) {
                 hasPermission = false;
                 message = 'User does not have permission';
                 statusCode = 403;
@@ -91,7 +98,7 @@ class PermissionController {
                     return next(new ErrorHandler(400, `${name} is missing`));
             }
 
-            const targetUser = await User.findById(req.params.targetUserId);
+            const targetUser = await User.findById(targetUserId);
             if (!targetUser)
                 throw new ErrorHandler(404, 'Target user does not exist');
 
@@ -132,7 +139,7 @@ class PermissionController {
                     return next(new ErrorHandler(400, `${name} is missing`));
             }
 
-            const targetUser = await User.findById(req.params.targetUserId);
+            const targetUser = await User.findById(targetUserId);
             if (!targetUser)
                 throw new ErrorHandler(404, 'Target user does not exist');
 

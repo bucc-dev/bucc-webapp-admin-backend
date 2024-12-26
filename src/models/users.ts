@@ -27,9 +27,6 @@ const UserSchema = new mongoose.Schema(
 			minlength: [1, 'Input a valid lastname'],
 			maxlength: [25, 'Lastname is too long'],
 		},
-		fullname: {
-			type: String,
-		},
 		password: {
 			type: String,
 			required: true,
@@ -71,22 +68,23 @@ const UserSchema = new mongoose.Schema(
 );
 
 UserSchema.pre('save', async function (next) {
-	if (this.isModified(['firstname', 'lastname']) || this.isNew) {
-		this.fullname = `${this.lastname} ${this.firstname}`;
-	}
-
-	if (this.isNew) {
-		await Permission.create({
-			userId: this._id,
-			role: this.role,
-		});
-	}
-
 	if (this.isModified('password') || this.isNew) {
 		this.password = await bcrypt.hash(this.password, 10);
 	}
 
 	next();
+});
+
+UserSchema.post('save', async function(doc, next) {
+	const permission_doc = await Permission.findOne({ userId: doc._id });
+	if (!permission_doc) {
+		await Permission.create({
+			userId: doc._id,
+			role: doc.role,
+		});
+		console.error("created");
+	}
+    next();
 });
 
 // methods
@@ -135,13 +133,13 @@ UserSchema.methods.generateRefreshToken = async function (
 UserSchema.methods.hasPermission = async function (
 	resource: permissionResource,
 	action: permissionAction,
-	resourceOwnerId: mongoose.Types.ObjectId
+	scope: 'own' | 'others'
 ): Promise<boolean> {
 	// Fetch the user's permission document
 	let permissionDocument = await Permission.findOne({ userId: this._id })  as IPermission;
 
 	if (!permissionDocument) {
-		permissionDocument = await this.create({
+		permissionDocument = await Permission.create({
 			userId: this._id,
 			role: this.role,
 		});
@@ -156,13 +154,7 @@ UserSchema.methods.hasPermission = async function (
 		return false; // No permissions for this resource
 	}
 
-	const isOwner = resourceOwnerId && resourceOwnerId.equals(this._id);
-
-	if (isOwner) {
-		return resourcePermission.actions.own.includes(action);
-	} else {
-		return resourcePermission.actions.others.includes(action);
-	}
+	return resourcePermission.actions[scope].includes(action);
 };
 
 const User = mongoose.model<IUser>('User', UserSchema);

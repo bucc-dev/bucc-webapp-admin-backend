@@ -31,7 +31,7 @@ const authMiddleware = async (req: Request, res: Response, next: NextFunction) =
         const decoded: CustomJwtPayload = jwt.verify(accessToken, secret) as CustomJwtPayload;
         req.user = decoded;
 
-        if (!req.user.isVerified) return next(new ErrorHandler(403, 'User is not verified'));
+        if (!req.user.isVerified) return next(new ErrorHandler(403, 'Account is not verified'));
         return next();
     } catch (error) {
         if (error instanceof TokenExpiredError) {
@@ -50,11 +50,13 @@ const authMiddleware = async (req: Request, res: Response, next: NextFunction) =
                 session.startTransaction();
 
                 try {
-                    user.refreshTokens = user.refreshTokens.filter(rt => rt !== refreshToken);
-
                     const payload: CustomJwtPayload = { _id: user._id, email: user.email, isVerified: user.isVerified };
 
+                    user.refreshTokens = user.refreshTokens.filter(rt => rt !== refreshToken);
                     const newRefreshToken: string = await user.generateRefreshToken(payload);
+                    await session.commitTransaction();
+                    session.endSession();
+
                     const newAccessToken: string = jwt.sign(payload, secret, { expiresIn: '5min' });
 
                     res.cookie('accessToken', newAccessToken, { maxAge: 5 * 60 * 1000, httpOnly: true, secure: true }); // 5 minutes
@@ -62,8 +64,6 @@ const authMiddleware = async (req: Request, res: Response, next: NextFunction) =
 
                     req.user = payload;
 
-                    await session.commitTransaction();
-                    session.endSession();
                     return next();
                 } catch (error) {
                     await session.abortTransaction();

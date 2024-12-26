@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import https from 'https';
 import mongoose from 'mongoose';
 import router from "./routes";
+import cache from './utils/cache';
 
 config();
 
@@ -36,9 +37,13 @@ app.listen(port, host, () => {
     console.log(`Listening on http://localhost:${port}`);
 });
 
-// to keep render alive
-setInterval(() => {
-    https.get(`${serverURL}/api/v1/ping`).on('error', (error) => {
-        console.error('Error pinging server:', error);
-    });
-}, 10 * 60 * 1000); // 10 minutes
+// to keep render and redis alive
+setInterval(async () => {
+    // https.get(`${serverURL}/api/v1/ping`).on('error', (error) => {
+    //     console.error('Error pinging server:', error);
+    // });
+
+    if (cache.connected) {
+        await cache.client.set('keep-alive-key', 'keep-alive-value', { EX: 15 * 60 });
+    }
+}, 15 * 60 * 1000); // 15 minutes

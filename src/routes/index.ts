@@ -2,6 +2,7 @@ import { Response, Request, NextFunction, Router } from "express";
 import { handleError, CustomError } from "../middleware/errorHandler";
 import userRouter from "./user";
 import permissionRouter from "./permission";
+import cache from "../utils/cache";
 
 
 const router: Router = Router();
@@ -21,6 +22,7 @@ router.all('*', (req: Request, res: Response, next: NextFunction) => {
 });
 
 router.use('/api/v1/ping', (req, res) => {
+    cache.connected
     return res.status(200).end();
 });
 

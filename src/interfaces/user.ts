@@ -6,7 +6,6 @@ interface IUser extends Document {
     _id: mongoose.Schema.Types.ObjectId; 
     firstname: string;
     lastname: string;
-    fullname?: string;
     password: string;
     role: 'admin' | 'super_admin';
     email: string;
@@ -23,7 +22,7 @@ interface IUser extends Document {
     hasPermission(
         resource: permissionResource,
         action: permissionAction,
-        resourceOwnerId: mongoose.Types.ObjectId
+        scope: 'own' | 'others'
     ): Promise<boolean>;
 }
 

@@ -26,7 +26,7 @@ class UserController {
 				return next(new ErrorHandler(400, `${name} is missing`));
 
 			if (
-				name === 'Role' &&
+				name === 'role' &&
 				!['admin', 'super_admin'].includes(field)
 			)
 				return next(new ErrorHandler(400, 'Invalid role'));
@@ -65,9 +65,16 @@ class UserController {
 		try {
 			const user = await User.findOne({ email });
 			if (!user)
-				return next(new ErrorHandler(404, 'User does not exist'));
+				return next(new ErrorHandler(404, 'Account does not exist'));
 
 			if (await cache.isOtpValid(user._id.toString(), otp)) {
+				if (user.isVerified == true) {
+					return res.status(201).json({
+						status: 'success',
+						message: 'Account is already verified',
+					});
+				}
+	
 				user.isVerified = true;
 
 				const payload: CustomJwtPayload = {
@@ -100,7 +107,7 @@ class UserController {
 					status: 'success',
 					message: 'Successfully logged in',
 				});
-			}
+			} else throw new ErrorHandler(401, "otp is invalid");
 		} catch (error) {
 			return next(error);
 		}
@@ -130,8 +137,10 @@ class UserController {
 	static async login(req: Request, res: Response, next: NextFunction) {
 		const { email, password } = req.body;
 
-		if (!email || !password)
-			return next(new ErrorHandler(400, 'Email or Password is missing'));
+		if (!email)
+			return next(new ErrorHandler(400, 'Email is missing'));
+		if (!password)
+			return next(new ErrorHandler(400, 'Password is missing'));
 
 		try {
 			const user = await User.findOne({ email });
@@ -141,7 +150,7 @@ class UserController {
 			}
 
 			if (!user.isVerified)
-				return next(new ErrorHandler(403, 'User is not verified'));
+				return next(new ErrorHandler(403, 'Account is not verified'));
 
 			if (user) {
 				const payload: CustomJwtPayload = {
@@ -228,7 +237,7 @@ class UserController {
 
 			res.status(200).json({
 				status: 'success',
-				message: 'Logged out successfully',
+				message: 'Logged out from all devices successfully',
 			});
 		} catch (error) {
 			return next(error);

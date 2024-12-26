@@ -10,15 +10,15 @@ config();
  * It manages the connection status and provides methods to generate and validate OTPs.
  */
 class RedisClient {
-	private client: RedisClientType;
+	public client: RedisClientType;
 	public connected: boolean = false;
 
 	constructor() {
 		this.client = createClient({
-			password: process.env.REDIS_PASS,
+			password: process.env.REDIS_PASSWORD,
 			socket: {
 				host: process.env.REDIS_HOST,
-				port: Number(process.env.REDIS_PORT),
+				port: Number(process.env.REDIS_PORT)
 			},
 		});
 
@@ -27,25 +27,12 @@ class RedisClient {
 			this.connected = false;
 		});
 
-		this.client.on('ready', () => {
+		this.client.on('ready', async () => {
 			this.connected = true;
 			console.log('Redis is connected');
 		});
 
 		this.client.connect();
-
-		// keep redis free server alive
-		setInterval(() => {
-			this.client
-				.ping()
-				.then(() => {
-					this.connected = true;
-				})
-				.catch((error) => {
-					console.error(`Redis PING failed at ${new Date()}:`, error);
-					this.connected = false;
-				});
-		}, 24 * 60 * 60 * 1000); // 24 hours
 	}
 
 	/**
@@ -75,7 +62,7 @@ class RedisClient {
             return otp;
 		} catch (error) {
 			console.error(
-				`otpgenerator failed for USER: ${userId} at ${new Date()}`
+				error// `otpgenerator failed for USER: ${userId} at ${new Date()}`
 			);
 			return new ErrorHandler(500, 'Please try again');
 		}

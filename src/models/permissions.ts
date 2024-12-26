@@ -1,9 +1,14 @@
 import mongoose, { Types } from 'mongoose';
-import { IPermission, IResourcePermission, IPermissionModel } from '../interfaces/permission';
+import {
+	IPermission,
+	IResourcePermissionObject,
+	IPermissionModel,
+} from '../interfaces/permission';
 import {
 	defaultPermissions,
-	allResourceActions,
-	allResources,
+	allPossibleResourceActions,
+	allPossibleResources,
+	validResourceActions
 } from '../config/roleConfig';
 import { permissionAction, permissionResource } from '../interfaces/permission';
 import { ErrorHandler } from '../middleware/errorHandler';
@@ -25,22 +30,27 @@ const PermissionSchema = new mongoose.Schema(
 		permissions: {
 			type: [
 				{
-					resource: {
-						type: String,
-						required: true,
-					},
+					resource: { type: String, required: true },
 					actions: {
-						type: [String],
-						enum: ['view', 'update', 'delete', 'create'],
-						default: ['view'],
-						required: true,
+						own: {
+							type: [String],
+							enum: ['view', 'update', 'delete', 'create'],
+							default: ['view'],
+							required: true,
+						},
+						others: {
+							type: [String],
+							enum: ['view', 'update', 'delete', 'create'],
+							default: ['view'],
+							required: true,
+						},
 					},
-				},
+				}
 			],
 			required: true,
 		},
 	},
-	{ timestamps: true, _id: false }
+	{ timestamps: true }
 );
 
 PermissionSchema.pre('save', async function (next) {
@@ -70,16 +80,21 @@ function validateInput(
 		);
 	}
 
-	if (!allResourceActions.includes(action) && action !== '*') {
-		throw new ErrorHandler(400, `Invalid action: ${action}`);
+	const resourceObject: IResourcePermissionObject | undefined = validResourceActions.find((object) => object.resource === resource);
+	if (!resourceObject) {
+		throw new ErrorHandler(400, `Invalid resource: ${resource}`);
 	}
 
-	if (!allResources.includes(resource)) {
-		throw new ErrorHandler(400, `Invalid resource: ${resource}`);
+	if (!allPossibleResourceActions.includes(action) && action !== '*') {
+		throw new ErrorHandler(400, `Invalid action: ${action}`);
 	}
 
 	if (!['own', 'others'].includes(scope)) {
 		throw new ErrorHandler(400, `Invalid scope: ${scope}`);
+	}
+
+	if (!resourceObject.actions[scope].includes(action)) {
+		throw new ErrorHandler(400, `Cannot [action: ${action}] [resource: ${resource}] on [scope: ${scope}]`);
 	}
 }
 
@@ -100,7 +115,8 @@ PermissionSchema.statics.grantPermission = async function (
 	action: permissionAction,
 	scope: 'own' | 'others' = 'own'
 ): Promise<string | void> {
-	validateInput(currentUser, resource, action, scope, 'grant');
+	const operation = 'grant';
+	validateInput(currentUser, resource, action, scope, operation);
 
 	let permissionDocument = (await this.findOne({
 		userId: targetUser._id,
@@ -112,10 +128,14 @@ PermissionSchema.statics.grantPermission = async function (
 		});
 	}
 
-	// Locate the permissions for the specified resource
-	let resourcePermission: IResourcePermission | undefined = permissionDocument.permissions.find(
-		(permission) => permission.resource === resource
-	);
+	// Locate the user's permissions for the specified resource 
+	let resourcePermission: IResourcePermissionObject | undefined =
+		permissionDocument.permissions.find(
+			(permission) => permission.resource === resource
+		);
+
+	// locate the permissions under the validResourceActions static object
+	const resourceObject: IResourcePermissionObject = validResourceActions.find((object) => object.resource === resource) as IResourcePermissionObject; 
 
 	// if there was no permissions for that resource
 	if (!resourcePermission) {
@@ -125,17 +145,20 @@ PermissionSchema.statics.grantPermission = async function (
 		};
 		resourcePermission.actions[scope] = [action];
 		permissionDocument.permissions.push(resourcePermission);
-	}	
+	}
 
 	// if there was existing permissions for that resource
 	if (action === '*') {
-		if (resourcePermission.actions[scope].length === allResourceActions.length) {
-			return `${targetUser.fullname} already has all permissions for ${resource}`;
+		if (
+			resourcePermission.actions[scope].length ===
+			resourceObject.actions[scope].length
+		) {
+			return `${targetUser.lastname} ${targetUser.firstname} already has all permissions for ${resource}`;
 		}
-		resourcePermission.actions[scope] = allResourceActions;
+		resourcePermission.actions[scope] = resourceObject.actions[scope];
 	} else {
 		if (resourcePermission.actions[scope].includes(action)) {
-			return `${targetUser.fullname} already has this permission`;
+			return `${targetUser.lastname} ${targetUser.firstname} already has this permission`;
 		}
 		resourcePermission.actions[scope].push(action);
 	}
@@ -160,7 +183,8 @@ PermissionSchema.statics.revokePermission = async function (
 	action: permissionAction,
 	scope: 'own' | 'others' = 'own'
 ): Promise<string | void> {
-	validateInput(currentUser, resource, action, scope, 'revoke');
+	const operation = 'grant';
+	validateInput(currentUser, resource, action, scope, operation);
 
 	let permissionDocument = (await this.findOne({
 		userId: targetUser._id,
@@ -173,28 +197,34 @@ PermissionSchema.statics.revokePermission = async function (
 	}
 
 	// Locate the permissions for the specified resource
-	let resourcePermission: IResourcePermission | undefined = permissionDocument.permissions.find(
-		(permission) => permission.resource === resource
-	);
+	let resourcePermission: IResourcePermissionObject | undefined =
+		permissionDocument.permissions.find(
+			(permission) => permission.resource === resource
+		);
 
 	// if there was no permissions for that resource
 	if (!resourcePermission) {
-		return `${targetUser.fullname} never had this permission`;
-	}	
+		return `${targetUser.lastname} ${targetUser.firstname} never had this permission`;
+	}
 
 	// if there was existing permissions for that resource
 	if (action === '*') {
 		resourcePermission.actions[scope] = [];
 	} else {
 		if (!resourcePermission.actions[scope].includes(action)) {
-			return `${targetUser.fullname} never had this permission`;
+			return `${targetUser.lastname} ${targetUser.firstname} never had this permission`;
 		}
-		resourcePermission.actions[scope] = resourcePermission.actions[scope].filter((act) => act !== action);
+		resourcePermission.actions[scope] = resourcePermission.actions[
+			scope
+		].filter((act) => act !== action);
 	}
 
 	await permissionDocument.save();
 };
 
-const Permission = mongoose.model<IPermission, IPermissionModel>('Permission', PermissionSchema);
+const Permission = mongoose.model<IPermission, IPermissionModel>(
+	'Permission',
+	PermissionSchema
+);
 
 export default Permission;
