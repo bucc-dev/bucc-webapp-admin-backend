@@ -1,6 +1,7 @@
 import { Response, Request, NextFunction, Router } from "express";
-import { handleError, CustomError } from "../middleware/errorHandler";
+import { handleError, CustomError } from "../utils/errorHandler";
 import userRouter from "./user";
+import authRouter from "./auth";
 import permissionRouter from "./permission";
 import cache from "../utils/cache";
 
@@ -9,6 +10,7 @@ const router: Router = Router();
 
 router.use('/api/v1/users', userRouter);
 router.use('/api/v1/users', permissionRouter);
+router.use('/api/v1/auth', authRouter);
 
 router.use((err: CustomError, req: Request, res: Response, next: NextFunction) => {
     handleError(err, res);
