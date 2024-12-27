@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 import cache from './cache.js';
-import { ErrorHandler } from '../middleware/errorHandler.js';
+import { ErrorHandler } from './errorHandler.js';
 
 /**
  * Sends a verification email with an OTP to the specified user.
@@ -24,7 +24,7 @@ export async function sendVerificationMail(userId: string, email: string): Promi
 		transporter.sendMail({
 			from: process.env.EMAIL_USER,
 			to: 'findtamilore@gmail.com',
-			subject: 'Confirm email',
+			subject: 'Account verification code',
 			html: `<h2>Verify your email address</h2>
 	             <p>Enter the following otp to verify your email:</p>
 	             <h2>${otp}</h2>
