@@ -1,9 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import User from '../models/users';
 import Permission from '../models/permissions';
-import { ErrorHandler } from '../middleware/errorHandler';
-import { IPermission, IResourcePermissionObject, permissionAction } from '../interfaces/permission';
-import { validResourceActions } from '../config/roleConfig';
+import { ErrorHandler } from '../utils/errorHandler';
+import { IPermission } from '../interfaces/permission';
 
 
 class PermissionController {
@@ -50,11 +49,6 @@ class PermissionController {
             for (const { field, name } of requiredFields) {
                 if (!field || field.trim() === '')
                     return next(new ErrorHandler(400, `${name} is missing`));
-            }
-
-            const resourceObject: IResourcePermissionObject | undefined = validResourceActions.find((object) => object.resource === resource);
-            if (!resourceObject || !resourceObject.actions[scope].includes(action)) {
-                return next(new ErrorHandler(400, `Invalid. Cannot [action: ${action}] [resource: ${resource}] on [scope: ${scope}]`));
             }
 
             let hasPermission: boolean = true;
