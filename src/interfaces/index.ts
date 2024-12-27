@@ -3,8 +3,6 @@ import mongoose from 'mongoose';
 
 export interface CustomJwtPayload extends JwtPayload {
     _id: mongoose.Schema.Types.ObjectId;
-    email: string;
-    isVerified: boolean
 }
 
 declare global {
