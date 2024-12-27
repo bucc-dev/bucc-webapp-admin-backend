@@ -15,7 +15,7 @@ import {
 	allPossibleResourceActions,
 	validResourceActions,
 } from '../config/roleConfig';
-import { ErrorHandler } from '../middleware/errorHandler';
+import { ErrorHandler } from '../utils/errorHandler';
 
 config();
 
@@ -53,7 +53,7 @@ const UserSchema = new mongoose.Schema(
 			unique: true,
 			match: [
 				/^[a-zA-Z0-9._%+-]+@(student|staff)\.babcock\.edu\.ng$/,
-				'Please fill a valid school email address',
+				'Please input a valid school email address',
 			],
 		},
 		isVerified: {
@@ -112,18 +112,20 @@ UserSchema.methods.isPasswordCorrect = async function (
  * @returns {Promise<string>} - Returns the generated refresh token.
  */
 UserSchema.methods.generateRefreshToken = async function (
-	payload: CustomJwtPayload
+	payload: CustomJwtPayload,
+	oldRefreshToken?: string
 ): Promise<string> {
-	const refreshToken: string = jwt.sign(
+	const newRefreshToken: string = jwt.sign(
 		payload,
 		process.env.JWT_SECRET as string,
 		{ expiresIn: '7d' }
 	);
 
-	this.refreshTokens.push(refreshToken);
+	this.refreshTokens.push(newRefreshToken);
+	this.refreshTokens = this.refreshTokens.filter((token: string) => token !== oldRefreshToken);
 	await this.save();
 
-	return refreshToken;
+	return newRefreshToken;
 };
 
 /**
