@@ -18,7 +18,7 @@ interface IUser extends Document {
     pendingRequests: [mongoose.Schema.Types.ObjectId];
 
     isPasswordCorrect(password: string): Promise<boolean>;
-    generateRefreshToken(payload: CustomJwtPayload): Promise<string>;
+    generateRefreshToken(payload: CustomJwtPayload, oldRefreshToken?: string): Promise<string>;
     hasPermission(
         resource: permissionResource,
         action: permissionAction,
