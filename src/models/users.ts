@@ -7,9 +7,15 @@ import IUser from '../interfaces/user';
 import Permission from './permissions';
 import {
 	IPermission,
+	IResourcePermissionObject,
 	permissionAction,
-	permissionResource
+	permissionResource,
 } from '../interfaces/permission';
+import {
+	allPossibleResourceActions,
+	validResourceActions,
+} from '../config/roleConfig';
+import { ErrorHandler } from '../middleware/errorHandler';
 
 config();
 
@@ -75,16 +81,15 @@ UserSchema.pre('save', async function (next) {
 	next();
 });
 
-UserSchema.post('save', async function(doc, next) {
+UserSchema.post('save', async function (doc, next) {
 	const permission_doc = await Permission.findOne({ userId: doc._id });
 	if (!permission_doc) {
 		await Permission.create({
 			userId: doc._id,
 			role: doc.role,
 		});
-		console.error("created");
 	}
-    next();
+	next();
 });
 
 // methods
@@ -135,8 +140,31 @@ UserSchema.methods.hasPermission = async function (
 	action: permissionAction,
 	scope: 'own' | 'others'
 ): Promise<boolean> {
+	const resourceObject: IResourcePermissionObject | undefined =
+		validResourceActions.find((object) => object.resource === resource);
+	if (!resourceObject) {
+		throw new ErrorHandler(400, `Invalid resource: ${resource}`);
+	}
+
+	if (!allPossibleResourceActions.includes(action)) {
+		throw new ErrorHandler(400, `Invalid action: ${action}`);
+	}
+
+	if (!['own', 'others'].includes(scope)) {
+		throw new ErrorHandler(400, `Invalid scope: ${scope}`);
+	}
+
+	if (!resourceObject.actions[scope].includes(action)) {
+		throw new ErrorHandler(
+			400,
+			`Cannot [action: ${action}] [resource: ${resource}] on [scope: ${scope}]`
+		);
+	}
+
 	// Fetch the user's permission document
-	let permissionDocument = await Permission.findOne({ userId: this._id })  as IPermission;
+	let permissionDocument = (await Permission.findOne({
+		userId: this._id,
+	})) as IPermission;
 
 	if (!permissionDocument) {
 		permissionDocument = await Permission.create({
