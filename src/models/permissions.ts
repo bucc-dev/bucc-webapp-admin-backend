@@ -7,11 +7,10 @@ import {
 import {
 	defaultPermissions,
 	allPossibleResourceActions,
-	allPossibleResources,
 	validResourceActions
 } from '../config/roleConfig';
 import { permissionAction, permissionResource } from '../interfaces/permission';
-import { ErrorHandler } from '../middleware/errorHandler';
+import { ErrorHandler } from '../utils/errorHandler';
 import IUser from '../interfaces/user';
 
 const PermissionSchema = new mongoose.Schema(
@@ -45,6 +44,7 @@ const PermissionSchema = new mongoose.Schema(
 							required: true,
 						},
 					},
+					_id: false
 				}
 			],
 			required: true,
