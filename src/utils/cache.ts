@@ -1,7 +1,10 @@
 import { config } from 'dotenv';
+import jwt from 'jsonwebtoken';
 import { createClient, RedisClientType } from 'redis';
 import otpGenerator from 'otp-generator';
-import { ErrorHandler } from '../middleware/errorHandler';
+import { ErrorHandler } from './errorHandler';
+import mongoose from 'mongoose';
+import { CustomJwtPayload } from '../interfaces';
 
 config();
 
@@ -35,6 +38,61 @@ class RedisClient {
 		this.client.connect();
 	}
 
+	private checkCacheConnection() {
+		if (!this.connected) {
+			console.error(`Cache is down at ${new Date()}, cannot save OTP`);
+			return new ErrorHandler(
+				500,
+				'This service is down, contact support.'
+			);
+		}
+	}
+
+	/**
+	 * Blacklists the given access token.
+	 * @param {string} userId - The user ID.
+	 * @param {string} accessToken - The access token to blacklist.
+	 * @returns {Promise<ErrorHandler | void>}
+	 */
+	public async blacklistAccessToken(userId: mongoose.Schema.Types.ObjectId, accessToken: string): Promise<ErrorHandler | void> {
+		this.checkCacheConnection();
+
+		const decoded: CustomJwtPayload = jwt.verify(accessToken, process.env.JWT_SECRET as string) as CustomJwtPayload; 
+
+		const jwtExp = decoded.exp as number;
+		const currentTime = Math.floor(Date.now() / 1000);
+		const expirationTime = jwtExp - currentTime;
+
+		try {
+			const blacklistKey = `${userId}:blacklist`;
+			this.client.sAdd(blacklistKey, accessToken);
+
+			// set the set to expire when the last token in the set has expired
+			this.client.expire(blacklistKey, expirationTime);
+		} catch (error) {
+			return new ErrorHandler(500, 'Internal server error - Failed to blacklist access token.');
+		}
+	}
+
+
+	/**
+ * Checks if the given access token is blacklisted.
+ * @param {string} userId - The user ID.
+ * @param {string} accessToken - The access token to check.
+ * @returns {Promise<ErrorHandler | boolean>}
+ */
+public async isAccessTokenBlacklisted(userId: mongoose.Schema.Types.ObjectId, accessToken: string): Promise<ErrorHandler | boolean> {
+    this.checkCacheConnection();
+
+    try {
+        const blacklistKey = `${userId.toString()}:blacklist`;
+        return await this.client.sIsMember(blacklistKey, accessToken);
+    } catch (error) {
+		return new ErrorHandler(500, 'Internal server error - Failed to blacklist access token.');
+    }
+}
+
+
 	/**
 	 * Generates and saves an OTP for the given user ID.
 	 * @param userId - The user ID to associate with the OTP.
@@ -43,13 +101,7 @@ class RedisClient {
 	public async generateAndSaveOTP(
 		userId: string
 	): Promise<ErrorHandler | string> {
-		if (!this.connected) {
-			console.error(`Cache is down at ${new Date()}, cannot save OTP`);
-			return new ErrorHandler(
-				500,
-				'This service is down, contact support.'
-			);
-		}
+		this.checkCacheConnection();
 
 		try {
 			const otp: string = otpGenerator.generate(6, {
@@ -78,13 +130,7 @@ class RedisClient {
 		userId: string,
 		otp: string
 	): Promise<boolean | ErrorHandler> {
-		if (!this.connected) {
-			console.error(`Cache is down at ${new Date()}, cannot save OTP`);
-			return new ErrorHandler(
-				500,
-				'This service is down, contact support.'
-			);
-		}
+		this.checkCacheConnection();
 
 		try {
 			const userOtp = await this.client.get(userId);
