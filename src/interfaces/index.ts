@@ -1,5 +1,6 @@
 import { JwtPayload } from "jsonwebtoken";
 import mongoose from 'mongoose';
+import IUser from "./user";
 
 export interface CustomJwtPayload extends JwtPayload {
     _id: mongoose.Schema.Types.ObjectId;
@@ -8,7 +9,7 @@ export interface CustomJwtPayload extends JwtPayload {
 declare global {
     namespace Express {
         interface Request {
-            user: CustomJwtPayload;
+            user: IUser;
         }
     }
 }
