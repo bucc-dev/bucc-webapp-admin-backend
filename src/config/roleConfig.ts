@@ -29,7 +29,7 @@ export const defaultPermissions: Record<
         {
             resource: 'notifications',
             actions: {
-                own: ['view', 'update', 'delete', 'create'],
+                own: ['view', 'delete', 'create'],
                 others: ['view'],
             },
         },
@@ -41,24 +41,30 @@ export const defaultPermissions: Record<
             resource: 'announcements',
             actions: {
                 own: ['view', 'update', 'delete', 'create'],
-                others: ['view', 'update', 'delete'],
-            },
+                others: ['view', 'update', 'delete']
+            }
         },
         {
-            resource: 'notifications',
+            resource: 'users',
             actions: {
-                own: ['view', 'update', 'delete', 'create'],
-                others: ['view', 'update', 'delete'],
-            },
+                own: ['view', 'update', 'delete'],
+                others: ['view', 'delete']
+            }
         },
-        { resource: 'users', actions: { own: ['view', 'update', 'delete'], others: ['view', 'create'] } },
         {
             resource: 'course_materials',
             actions: {
                 own: ['view', 'delete', 'create'],
-                others: ['view', 'delete'],
-            },
+                others: ['view', 'delete']
+            }
         },
+        {
+            resource: 'notifications',
+            actions: {
+                own: ['view', 'delete', 'create'],
+                others: ['view', 'delete']
+            }
+        }
     ]
 };
 
@@ -75,7 +81,7 @@ export const validResourceActions: IResourcePermissionObject[] = [
         resource: 'users',
         actions: {
             own: ['view', 'update', 'delete'],
-            others: ['view', 'update', 'delete', 'create']
+            others: ['view', 'delete']
         }
     },
     {
@@ -88,8 +94,8 @@ export const validResourceActions: IResourcePermissionObject[] = [
     {
         resource: 'notifications',
         actions: {
-            own: ['view', 'update', 'delete', 'create'],
-            others: ['view', 'update', 'delete']
+            own: ['view', 'delete', 'create'],
+            others: ['view', 'delete']
         }
     }
 ];
