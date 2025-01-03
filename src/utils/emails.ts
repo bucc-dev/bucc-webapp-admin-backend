@@ -24,9 +24,9 @@ export async function sendVerificationMail(userId: string, email: string): Promi
 		transporter.sendMail({
 			from: process.env.EMAIL_USER,
 			to: 'findtamilore@gmail.com',
-			subject: 'Account verification code',
-			html: `<h2>Verify your email address</h2>
-	             <p>Enter the following otp to verify your email:</p>
+			subject: 'OTP code',
+			html: `<h2>OTP for verification</h2>
+	             <p>Enter the following otp on the site:</p>
 	             <h2>${otp}</h2>
 	             <p>If you didn't request this, contact support.</p>
 	             <h4>DO NOT REPLY TO THIS AUTOMATED EMAIL.</h4>`,
