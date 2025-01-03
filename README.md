@@ -42,7 +42,7 @@ next(new ErrorHandler(401, 'Login required'));
 
 ## Permission System
 
-[config file]](./src/config/roleConfig.ts)
+[config file](./src/config/roleConfig.ts)
 The system makes use of Attribute Based Access Control - ABAC, which is a model that grants access based on attributes (or characteristics) of the user, the resource, and the environment.
 
 For the current code, the attributes include:
