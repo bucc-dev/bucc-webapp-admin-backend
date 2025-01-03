@@ -14,6 +14,13 @@ bucc-webapp-admin-backend
 
 - Database
   - MONGODB_URI
+- Redis
+  - REDIS_HOST
+  - REDIS_PORT
+  - REDIS_PASSWORD
+- Email
+  - EMAIL_USER
+  - EMAIL_PASS
 - Server
   - PORT
   - JWT_SECRET
