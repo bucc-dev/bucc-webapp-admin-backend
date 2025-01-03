@@ -69,6 +69,7 @@ The permissions are defined based on these attributes, allowing for fine-grained
 ### Check permission function usage
 
 ```Typescript
+import { checkUserPermission } from '../utils/controllerUtils';
 
 /**
  * checks if the user has the specified permission and does nothing it he/she has it.
