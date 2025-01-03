@@ -13,9 +13,11 @@ import {
 } from '../interfaces/permission';
 import {
 	allPossibleResourceActions,
+	defaultPermissions,
 	validResourceActions,
 } from '../config/roleConfig';
 import { ErrorHandler } from '../utils/errorHandler';
+import { Console } from 'console';
 
 config();
 
@@ -185,6 +187,50 @@ UserSchema.methods.hasPermission = async function (
 	}
 
 	return resourcePermission.actions[scope].includes(action);
+};
+
+
+/**
+ * Changes the role of a user.
+ *
+ * @param currentUser - The Document of the user changing the role.
+ * @param targetUser - The Document of the user whose role is being changed.
+ * @param newRole - The new role to assign to the user, either 'admin' or 'super_admin'.
+ * @returns {Promise<void>} Resolves when the role is changed successfully.
+ */
+UserSchema.statics.changeUserRole = async function (
+	currentUser: IUser,
+	targetUser: IUser,
+	newRole: 'admin' | 'super_admin'
+): Promise<void | string> {
+	if (currentUser.role !== 'super_admin') {
+		throw new ErrorHandler(
+			403,
+			`You do not have permission to change the role.`
+		);
+	}
+
+	if (!['admin', 'super_admin'].includes(newRole)) {
+		throw new ErrorHandler(400, `Invalid role: ${newRole}`);
+	}
+
+	if (targetUser.role === newRole) {
+		return `User is alread a/an ${newRole}`;
+	}
+	targetUser.role = newRole;
+	await targetUser.save();
+
+	// Update permissions based on the new role
+	let permissionDocument = (await this.findOne({
+		userId: targetUser._id,
+	})) as IPermission;
+	if (!permissionDocument) {
+		console.error(`${targetUser._id}: ${targetUser._id} does not have a permission document.`);
+		throw new ErrorHandler(500, 'Internal server error');
+	}
+	permissionDocument.role = newRole;
+	permissionDocument.permissions = defaultPermissions[newRole];
+	await permissionDocument.save();
 };
 
 const User = mongoose.model<IUser>('User', UserSchema);
