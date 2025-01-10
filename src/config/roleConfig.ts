@@ -1,4 +1,5 @@
-import { IResourcePermissionObject, permissionAction, permissionResource, userRole } from '../interfaces/permission';
+import { IResourcePermissionObject, permissionAction, permissionResource } from '../interfaces/permission';
+import { userRole } from '../interfaces/user';
 
 export const allPossibleResourceActions: permissionAction[] = [
 	'view',
@@ -18,6 +19,24 @@ export const defaultPermissions: Record<
 	userRole,
     IResourcePermissionObject[]
 > = {
+    student: [
+        {
+            resource: 'announcements',
+            actions: {
+                own: [],
+                others: ['view'],
+            },
+        },
+        {
+            resource: 'notifications',
+            actions: {
+                own: [],
+                others: ['view'],
+            },
+        },
+        { resource: 'users', actions: { own: [], others: ['view'] } },
+        { resource: 'course_materials', actions: { own: [], others: ['view'] } },
+    ],
 	admin: [
         {
             resource: 'announcements',

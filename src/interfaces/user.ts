@@ -2,12 +2,14 @@ import mongoose, { Document } from 'mongoose';
 import { CustomJwtPayload } from '.';
 import { permissionAction, permissionResource } from './permission';
 
+export type userRole = 'admin' | 'super_admin' | 'student'
+
 interface IUser extends Document {
     _id: mongoose.Schema.Types.ObjectId; 
     firstname: string;
     lastname: string;
     password: string;
-    role: 'admin' | 'super_admin';
+    role: userRole;
     email: string;
     isVerified: boolean;
     refreshTokens: string[];

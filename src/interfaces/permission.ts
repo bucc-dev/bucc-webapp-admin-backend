@@ -1,9 +1,8 @@
 import mongoose, { Document } from 'mongoose';
-import IUser from './user';
+import IUser, { userRole } from './user';
 
 export type permissionResource = 'announcements' | 'course_materials' | 'notifications' | 'users';
 export type permissionAction = 'view' | 'update' | 'delete' | 'create' | '*';
-export type userRole = 'admin' | 'super_admin'
 
 export interface IResourcePermissionObject {
 	resource: permissionResource;

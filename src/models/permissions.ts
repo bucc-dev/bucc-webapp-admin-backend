@@ -23,7 +23,7 @@ const PermissionSchema = new mongoose.Schema(
 		},
 		role: {
 			type: String,
-			enum: ['admin', 'super_admin'],
+			enum: ['admin', 'super_admin', 'student'],
 			required: true,
 		},
 		permissions: {

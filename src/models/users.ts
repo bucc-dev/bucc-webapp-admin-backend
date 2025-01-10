@@ -46,7 +46,7 @@ const UserSchema = new mongoose.Schema(
 		},
 		role: {
 			type: String,
-			enum: ['admin', 'super_admin'],
+			enum: ['admin', 'super_admin', 'student'],
 			required: true,
 		},
 		email: {
@@ -65,12 +65,7 @@ const UserSchema = new mongoose.Schema(
 		refreshTokens: {
 			type: [String],
 			default: [],
-		},
-		creatorId: {
-			type: mongoose.Schema.Types.ObjectId,
-			ref: 'User',
-			default: null,
-		},
+		}
 	},
 	{ timestamps: true }
 );
@@ -210,7 +205,7 @@ UserSchema.statics.changeUserRole = async function (
 		);
 	}
 
-	if (!['admin', 'super_admin'].includes(newRole)) {
+	if (!['admin', 'super_admin', 'student'].includes(newRole)) {
 		throw new ErrorHandler(400, `Invalid role: ${newRole}`);
 	}
 

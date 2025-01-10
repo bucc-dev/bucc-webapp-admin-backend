@@ -107,7 +107,7 @@ class authController {
 			if (!field || field.trim() === '')
 				return next(new ErrorHandler(400, `${name} is missing`));
 
-			if (name === 'role' && !['admin', 'super_admin'].includes(field))
+			if (name === 'role' && !['admin', 'super_admin', 'student'].includes(field))
 				return next(new ErrorHandler(400, 'Invalid role'));
 		}
 
