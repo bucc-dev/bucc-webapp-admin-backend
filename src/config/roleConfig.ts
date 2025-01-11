@@ -11,8 +11,7 @@ export const allPossibleResourceActions: permissionAction[] = [
 export const allPossibleResources: permissionResource[] = [
 	'announcements',
 	'users',
-	'course_materials',
-	'notifications',
+	'course_materials'
 ];
 
 export const defaultPermissions: Record<
@@ -27,13 +26,6 @@ export const defaultPermissions: Record<
                 others: ['read'],
             },
         },
-        {
-            resource: 'notifications',
-            actions: {
-                own: [],
-                others: ['read'],
-            },
-        },
         { resource: 'users', actions: { own: [], others: ['read'] } },
         { resource: 'course_materials', actions: { own: [], others: ['read'] } },
     ],
@@ -42,13 +34,6 @@ export const defaultPermissions: Record<
             resource: 'announcements',
             actions: {
                 own: ['read', 'update', 'delete', 'create'],
-                others: ['read'],
-            },
-        },
-        {
-            resource: 'notifications',
-            actions: {
-                own: ['read', 'delete', 'create'],
                 others: ['read'],
             },
         },
@@ -76,13 +61,6 @@ export const defaultPermissions: Record<
                 own: ['read', 'delete', 'create'],
                 others: ['read', 'delete']
             }
-        },
-        {
-            resource: 'notifications',
-            actions: {
-                own: ['read', 'delete', 'create'],
-                others: ['read', 'delete']
-            }
         }
     ]
 };
@@ -105,13 +83,6 @@ export const validResourceActions: IResourcePermissionObject[] = [
     },
     {
         resource: 'course_materials',
-        actions: {
-            own: ['read', 'delete', 'create'],
-            others: ['read', 'delete']
-        }
-    },
-    {
-        resource: 'notifications',
         actions: {
             own: ['read', 'delete', 'create'],
             others: ['read', 'delete']

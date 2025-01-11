@@ -13,11 +13,6 @@ interface IUser extends Document {
     email: string;
     isVerified: boolean;
     refreshTokens: string[];
-    creatorId: mongoose.Schema.Types.ObjectId | null;
-    courseMaterials: [mongoose.Schema.Types.ObjectId];
-    announcements: [mongoose.Schema.Types.ObjectId];
-    notifications: [mongoose.Schema.Types.ObjectId];
-    pendingRequests: [mongoose.Schema.Types.ObjectId];
 
     isPasswordCorrect(password: string): Promise<boolean>;
     generateRefreshToken(payload: CustomJwtPayload, oldRefreshToken?: string): Promise<string>;
