@@ -31,11 +31,16 @@ const authMiddleware = async (req: Request, res: Response, next: NextFunction) =
             return next(new ErrorHandler(401, "Login required"));
         }
 
-        const user: IUser | null = await User.findById(decoded._id);
-        if (!user) return next(new ErrorHandler(404, "Account does not exist: Invalid ID"));
-        if (!user.isVerified) return next(new ErrorHandler(403, 'Account is not verified'));
+        let user: IUser | null = await cache.getUser(decoded._id) as IUser | null;
+        if (!user) {
+            const user: IUser | null = await User.findById(decoded._id);
+            if (!user) return next(new ErrorHandler(404, "Account does not exist: Invalid ID"));
+            if (!user.isVerified) return next(new ErrorHandler(403, 'Account is not verified'));
 
-        req.user = user;
+            await cache.storeUser(user);
+        }
+
+        req.user = user as IUser;
 
         return next();
     } catch (error) {
