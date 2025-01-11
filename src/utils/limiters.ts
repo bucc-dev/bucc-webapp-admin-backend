@@ -39,6 +39,7 @@ export const moderateRateLimiter = rateLimit({
 
 /**
  * Limits requests to 1 per minute.
+ * like for otp and emails
  */
 export const strictRateLimiter = rateLimit({
     windowMs: 60 * 1000,
