@@ -1,10 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
+import bcrypt from 'bcryptjs';
+import { config } from 'dotenv';
+import mongoose, { DeleteResult } from 'mongoose';
 import User from '../models/users';
 import { ErrorHandler } from '../utils/errorHandler';
-import { config } from 'dotenv';
 import { sendVerificationMail } from '../utils/emails';
 import cache from '../utils/cache';
-import mongoose, { DeleteResult } from 'mongoose';
 import IUser from '../interfaces/user';
 import { checkUserPermission } from '../utils/controllerUtils';
 
@@ -80,6 +81,62 @@ class UserController {
 				status: 'success',
 				data: user
 			});
+		} catch (error) {
+			return next(error);
+		}
+	}
+
+	static async updateUserName(req: Request, res: Response, next: NextFunction) {
+		const { newFirstName, newLastName } = req.body;
+
+		if (!newFirstName && !newLastName) {
+			return next(new ErrorHandler(400, ''));
+		}
+
+		try {
+			await checkUserPermission(req.user, 'users', 'update');
+
+			if (newFirstName) {
+				req.user.firstname = newFirstName;
+			}
+			if (newLastName) {
+				req.user.lastname = newLastName;
+			}
+
+			await req.user.save();
+
+			return res.status(200).json({
+				status: 'success',
+				data: req.user
+			});
+		} catch (error) {
+			return next(error);
+		}
+	}
+
+	static async updateUserPassword(req: Request, res: Response, next: NextFunction) {
+		const { oldPassword, newPassword, confirmNewPassword } = req.body;
+
+		if (!oldPassword || !newPassword || !confirmNewPassword) {
+			return next(new ErrorHandler(400, 'All password fields are required'));
+		}
+
+		if (newPassword !== confirmNewPassword) {
+			return next(new ErrorHandler(400, 'newPassword and confirmNewPassword do not match'));
+		}
+
+		if (!(req.user.isPasswordCorrect(oldPassword))) {
+			return next(new ErrorHandler(401, 'oldPassword is incorrect'));
+		}
+
+		try {
+			await checkUserPermission(req.user, 'users', 'update');
+
+			req.user.password = await bcrypt.hash(newPassword, 10);
+
+			await req.user.save();
+
+			return res.status(204).send();
 		} catch (error) {
 			return next(error);
 		}
