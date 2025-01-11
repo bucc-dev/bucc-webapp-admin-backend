@@ -162,14 +162,14 @@ class authController {
 
 				const payload: CustomJwtPayload = {
 					_id: user._id,
-					email: user.email,
-					isVerified: user.isVerified,
 				};
 				const accessToken: string = jwt.sign(
 					payload,
 					process.env.JWT_SECRET as string,
 					{ expiresIn: '5min' }
 				);
+
+				// this function saves state at the end
 				const refreshToken: string = await user.generateRefreshToken(
 					payload
 				);
@@ -192,7 +192,7 @@ class authController {
 					status: 'success',
 					message: 'Successfully logged in',
 				});
-			} else throw new ErrorHandler(401, 'otp is invalid');
+			} else return next(new ErrorHandler(401, 'otp is invalid'));
 		} catch (error) {
 			return next(error);
 		}
