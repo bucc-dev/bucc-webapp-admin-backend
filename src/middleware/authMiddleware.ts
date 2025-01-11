@@ -43,7 +43,14 @@ const authMiddleware = async (req: Request, res: Response, next: NextFunction) =
         req.user = user as IUser;
 
         return next();
-    } catch (error) {
+    } catch (error: any) {
+        if (error.name === 'TokenExpiredError') {
+            const payload: CustomJwtPayload = jwt.decode(req.cookies?.accessToken) as CustomJwtPayload;
+
+            if (payload && payload.reset) {
+                return next(new ErrorHandler(401, 'Password reset link has expired'));
+            }
+        }
         console.log(error);
         return next(new ErrorHandler(401, "Login required"));
     }
