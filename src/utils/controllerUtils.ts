@@ -27,9 +27,11 @@ export async function checkUserPermission(
 	user: IUser,
 	resource: permissionResource,
 	action: permissionAction,
-	scope: 'own' | 'others',
 	targetUserId?: string | mongoose.Schema.Types.ObjectId
 ) {
+	let scope: 'own' | 'others' = 'own';
+	if (targetUserId && user._id !== targetUserId) scope = 'others';
+
 	const resourceObject: IResourcePermissionObject | undefined =
 		validResourceActions.find((object) => object.resource === resource);
 	if (!resourceObject) {
@@ -50,9 +52,6 @@ export async function checkUserPermission(
 			`Cannot [action: ${action}] [resource: ${resource}] on [scope: ${scope}]`
 		);
 	}
-
-	// if theres no target user then the scope is the current authenticated user i.e "self".
-	if (!targetUserId) scope = 'own';
 
 	try {
 		if (
