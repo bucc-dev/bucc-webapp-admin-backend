@@ -34,8 +34,12 @@ export const handleError = (error: CustomError, response: Response) => {
     }
 
     console.error(error); // removed for prod
-    response.status(statusCode).json({
-      status: "fail",
-      message
-    });
+    
+    const errorResponsePayload: any = { status: "fail", message };
+    
+    if (error.statusCode === 403) {
+        errorResponsePayload.hasPermission = false;
+    }
+    
+    return response.status(statusCode).json(errorResponsePayload);
 };
