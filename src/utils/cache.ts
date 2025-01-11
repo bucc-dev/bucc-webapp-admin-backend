@@ -5,6 +5,8 @@ import otpGenerator from 'otp-generator';
 import { ErrorHandler } from './errorHandler';
 import mongoose from 'mongoose';
 import { CustomJwtPayload } from '../interfaces';
+import IUser from '../interfaces/user';
+import User from '../models/users';
 
 config();
 
@@ -141,6 +143,64 @@ public async isAccessTokenBlacklisted(userId: mongoose.Schema.Types.ObjectId, ac
 		} catch (error) {
 			console.log(error);
 			return new ErrorHandler(500, 'Please try again.');
+		}
+	}
+
+	/**
+	 * Stores user info in the cache with a TTL of 5 minutes.
+	 * @param {IUser} user - The user document to store.
+	 * @returns {Promise<ErrorHandler | void>}
+	 */
+	public async storeUser(user: IUser): Promise<ErrorHandler | void> {
+		this.checkCacheConnection();
+	
+		try {
+			const key = `user-${user._id}`;
+			const value = JSON.stringify(user.toObject());
+			await this.client.set(key, value, { EX: 5 * 60 });
+			console.log('object: ', user.toObject());
+		} catch (error) {
+			console.error(error);
+			return new ErrorHandler(500, 'Internal server error - Failed to store user info.');
+		}
+	}
+  
+	/**
+	 * Retrieves user info from the cache and converts it back to a Mongoose document.
+	 * @param {string} userId - The user ID.
+	 * @returns {Promise<ErrorHandler | IUser | null>}
+	 */
+	public async getUser(userId: string | mongoose.Schema.Types.ObjectId): Promise<ErrorHandler | IUser | null> {
+		this.checkCacheConnection();
+	
+		try {
+			const key = `user-${userId}`;
+			const user = await this.client.get(key);
+			if (user) {
+				const userObject = JSON.parse(user);
+				return User.hydrate(userObject);
+			}
+			return null;
+		} catch (error) {
+			console.error(error);
+			return new ErrorHandler(500, 'Internal server error - Failed to retrieve user info.');
+		}
+	}
+
+  	/**
+	 * Removes user info from the cache.
+	 * @param {string} userId - The user ID.
+	 * @returns {Promise<ErrorHandler | void>}
+	 */
+	public async removeUser(userId: string | mongoose.Schema.Types.ObjectId): Promise<ErrorHandler | void> {
+		this.checkCacheConnection();
+	
+		try {
+			const key = `user-${userId}`;
+			await this.client.del(key);
+		} catch (error) {
+			console.error(error);
+			return new ErrorHandler(500, 'Internal server error - Failed to remove user info.');
 		}
 	}
 }
