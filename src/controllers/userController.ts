@@ -1,13 +1,15 @@
 import { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcryptjs';
 import { config } from 'dotenv';
+import jwt from 'jsonwebtoken';
 import mongoose, { DeleteResult } from 'mongoose';
 import User from '../models/users';
 import { ErrorHandler } from '../utils/errorHandler';
-import { sendVerificationMail } from '../utils/emails';
+import { sendPasswordResetEmail, sendVerificationMail } from '../utils/emails';
 import cache from '../utils/cache';
 import IUser from '../interfaces/user';
 import { checkUserPermission } from '../utils/controllerUtils';
+import { CustomJwtPayload } from '../interfaces';
 
 config();
 
@@ -136,12 +138,125 @@ class UserController {
 
 			await req.user.save();
 
-			return res.status(204).send();
+			return res.status(200).json({
+				status: 'success',
+				message: 'Password has been updated'
+			});
 		} catch (error) {
 			return next(error);
 		}
 	}
-	
+
+	static async forgotPassword(req: Request, res: Response, next: NextFunction) {
+		const { email } = req.body;
+
+		if (!email) {
+			return next(new ErrorHandler(400, 'email is missing'));
+		}
+
+		try {
+			const user = await User.findOne({ email });
+			if (!user) {
+				return next(new ErrorHandler(404, 'Email is not registered'));
+			}
+
+			const accessToken: string = jwt.sign(
+				{ _id: user._id, reset: true },
+				process.env.JWT_SECRET as string,
+				{ expiresIn: '5min' }
+			);
+
+			sendPasswordResetEmail(user, accessToken);
+
+			return res.status(200).json({
+				status: 'success',
+				message: 'A password reset link has been sent to your email'
+			});
+		} catch (error) {
+			return next(error);
+		}
+	}
+
+	static async resetPassword(req: Request, res: Response, next: NextFunction) {
+		const { newPassword, confirmNewPassword } = req.body;
+
+		if (!newPassword || !confirmNewPassword) {
+			return next(new ErrorHandler(400, 'All password fields are required'));
+		}
+
+		if (newPassword !== confirmNewPassword) {
+			return next(new ErrorHandler(400, 'newPassword and confirmNewPassword do not match'));
+		}
+
+		try {
+			await checkUserPermission(req.user, 'users', 'update');
+
+			req.user.password = await bcrypt.hash(newPassword, 10);
+
+			await req.user.save();
+
+			return res.status(200).json({
+				status: 'success',
+				message: 'Password has been successfully reset'
+			});
+		} catch (error) {
+			return next(error);
+		}
+	}
+
+	static async updateEmail(req: Request, res: Response, next: NextFunction) {
+		const { email } = req.body;
+
+		if (!email) {
+			return next(new ErrorHandler(400, 'email is missing'));
+		}
+
+		try {
+			const user = await User.findOne({ email });
+			if (user) {
+				return next(new ErrorHandler(409, 'Email has already been used'));
+			}
+
+			sendVerificationMail(req.user._id.toString(), email);
+
+			return res.status(200).json({
+				status: 'success',
+				message: 'A OTP has been sent to your new email'
+			});
+		} catch (error) {
+			return next(error);
+		}
+	}
+
+	static async setNewEmail(req: Request, res: Response, next: NextFunction) {
+		const { email: newEmail, otp } = req.body;
+
+		if (!newEmail) {
+			return next(new ErrorHandler(400, 'email is missing'));
+		}
+
+		try {
+			const user = await User.findOne({ newEmail });
+			if (user) {
+				return next(new ErrorHandler(409, 'Email has already been used'));
+			}
+
+			if (await cache.isOtpValid(req.user._id.toString(), otp)) {
+				req.user.email = newEmail;
+
+				await req.user.save();
+
+				return res.status(200).json({
+					status: 'success',
+					message: 'Email has been updated'
+				});
+			} else {
+				return next(new ErrorHandler(401, 'otp is invalid'));
+			}
+		} catch (error) {
+			return next(error);
+		}
+	}
 }
 
 export default UserController;
