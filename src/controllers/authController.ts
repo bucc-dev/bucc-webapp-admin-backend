@@ -270,6 +270,8 @@ class authController {
                     path: '/auth/refresh'
 				}); // 7d
 
+				await cache.storeUser(user);
+
 				return res.status(200).json({
 					status: 'success',
 					message: 'Successfully logged in',
@@ -293,6 +295,8 @@ class authController {
 
 			res.clearCookie('accessToken', { httpOnly: true, secure: true, sameSite: true });
 			res.clearCookie('refreshToken', { httpOnly: true, secure: true, sameSite: true, path: '/auth/refresh' });
+
+			await cache.removeUser(req.user._id);
 
 			res.status(200).json({
 				status: 'success',
