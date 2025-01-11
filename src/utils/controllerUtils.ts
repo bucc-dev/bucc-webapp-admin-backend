@@ -1,7 +1,15 @@
 import mongoose from 'mongoose';
-import { permissionAction, permissionResource } from '../interfaces/permission';
+import {
+	IResourcePermissionObject,
+	permissionAction,
+	permissionResource,
+} from '../interfaces/permission';
 import IUser from '../interfaces/user';
 import { ErrorHandler } from './errorHandler';
+import {
+	allPossibleResourceActions,
+	validResourceActions,
+} from '../config/roleConfig';
 
 /**
  * checks if the user has the specified permission and does nothing it he/she has it.
@@ -22,17 +30,34 @@ export async function checkUserPermission(
 	scope: 'own' | 'others',
 	targetUserId?: string | mongoose.Schema.Types.ObjectId
 ) {
-	if (user.role === 'student' && action !== 'view') {
+	const resourceObject: IResourcePermissionObject | undefined =
+		validResourceActions.find((object) => object.resource === resource);
+	if (!resourceObject) {
+		throw new ErrorHandler(400, `Invalid resource: ${resource}`);
 	}
+
+	if (!allPossibleResourceActions.includes(action) && action !== '*') {
+		throw new ErrorHandler(400, `Invalid action: ${action}`);
+	}
+
+	if (!['own', 'others'].includes(scope)) {
+		throw new ErrorHandler(400, `Invalid scope: ${scope}`);
+	}
+
+	if (!resourceObject.actions[scope].includes(action)) {
+		throw new ErrorHandler(
+			400,
+			`Cannot [action: ${action}] [resource: ${resource}] on [scope: ${scope}]`
+		);
+	}
+
 	// if theres no target user then the scope is the current authenticated user i.e "self".
 	if (!targetUserId) scope = 'own';
 
 	try {
 		if (
-			(
-                user.role === 'student' && action !== 'view') ||
-			    !(await user.hasPermission(resource, action, scope)
-            )
+			(user.role === 'student' && action !== 'read') ||
+			!(await user.hasPermission(resource, action, scope))
 		) {
 			throw new ErrorHandler(403, 'User does not have permission');
 		}
