@@ -58,11 +58,11 @@ For the current code, the attributes include:
 
 - **Resource:** `announcements, users, course_materials, notifications`
 
-- **Actions:** `view, update, delete, create`
+- **Actions:** `read, update, delete, create`
 
 - **Scope:** `own, others`
 
-The permissions are defined based on these attributes, allowing for fine-grained control over what actions a user can perform on specific resources. For now, only CRUD actions are specified (view represents read).
+The permissions are defined based on these attributes, allowing for fine-grained control over what actions a user can perform on specific resources. For now, only CRUD actions are specified.
 
 **IMPORTANT**: for every **CRUD** operation for the **API - Controller** should use the `checkUserPermission` function in the [Utils folder](./src/utils/controllerUtils.ts) - to ensure the current user has sufficient permission to complete that action.
 
@@ -82,14 +82,14 @@ import { checkUserPermission } from '../utils/controllerUtils';
  * 
  * @throws {ErrorHandler} If the user does not have the required permission.
  */
-await checkUserPermission(req.user, 'users', 'view', scope, targetUserId);
+await checkUserPermission(req.user, 'users', 'read', scope, targetUserId);
 
 ```
 ## What is left?
 
 - Controller and routes for course_materials
 - Controller and routes for announcements
-- Controller, routes and setup of web socket for real-time (if necessary), for notifications
+- setup of web socket for real-time (if necessary), for notifications
 - Testing
 - API Documentation using swagger
 - Email for the bucc web app

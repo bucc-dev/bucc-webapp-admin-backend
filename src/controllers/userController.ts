@@ -17,7 +17,7 @@ class UserController {
 		let scope: 'own' | 'others' = targetUserId ? 'others' : 'own';
 
 		try {
-			await checkUserPermission(req.user, 'users', 'view', scope, targetUserId);
+			await checkUserPermission(req.user, 'users', 'read', scope, targetUserId);
 
 			let targetUser: IUser | null;
 			if (targetUserId) {

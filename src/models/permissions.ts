@@ -33,14 +33,14 @@ const PermissionSchema = new mongoose.Schema(
 					actions: {
 						own: {
 							type: [String],
-							enum: ['view', 'update', 'delete', 'create'],
-							default: ['view'],
+							enum: ['read', 'update', 'delete', 'create'],
+							default: ['read'],
 							required: true,
 						},
 						others: {
 							type: [String],
-							enum: ['view', 'update', 'delete', 'create'],
-							default: ['view'],
+							enum: ['read', 'update', 'delete', 'create'],
+							default: ['read'],
 							required: true,
 						},
 					},

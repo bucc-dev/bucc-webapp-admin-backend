@@ -2,7 +2,7 @@ import { IResourcePermissionObject, permissionAction, permissionResource } from 
 import { userRole } from '../interfaces/user';
 
 export const allPossibleResourceActions: permissionAction[] = [
-	'view',
+	'read',
 	'update',
 	'delete',
 	'create',
@@ -24,64 +24,64 @@ export const defaultPermissions: Record<
             resource: 'announcements',
             actions: {
                 own: [],
-                others: ['view'],
+                others: ['read'],
             },
         },
         {
             resource: 'notifications',
             actions: {
                 own: [],
-                others: ['view'],
+                others: ['read'],
             },
         },
-        { resource: 'users', actions: { own: [], others: ['view'] } },
-        { resource: 'course_materials', actions: { own: [], others: ['view'] } },
+        { resource: 'users', actions: { own: [], others: ['read'] } },
+        { resource: 'course_materials', actions: { own: [], others: ['read'] } },
     ],
 	admin: [
         {
             resource: 'announcements',
             actions: {
-                own: ['view', 'update', 'delete', 'create'],
-                others: ['view'],
+                own: ['read', 'update', 'delete', 'create'],
+                others: ['read'],
             },
         },
         {
             resource: 'notifications',
             actions: {
-                own: ['view', 'delete', 'create'],
-                others: ['view'],
+                own: ['read', 'delete', 'create'],
+                others: ['read'],
             },
         },
-        { resource: 'users', actions: { own: ['view', 'update', 'delete'], others: ['view'] } },
-        { resource: 'course_materials', actions: { own: ['view'], others: ['view'] } },
+        { resource: 'users', actions: { own: ['read', 'update', 'delete'], others: ['read'] } },
+        { resource: 'course_materials', actions: { own: ['read'], others: ['read'] } },
     ],
     super_admin: [
         {
             resource: 'announcements',
             actions: {
-                own: ['view', 'update', 'delete', 'create'],
-                others: ['view', 'update', 'delete']
+                own: ['read', 'update', 'delete', 'create'],
+                others: ['read', 'update', 'delete']
             }
         },
         {
             resource: 'users',
             actions: {
-                own: ['view', 'update', 'delete'],
-                others: ['view', 'delete']
+                own: ['read', 'update', 'delete'],
+                others: ['read', 'delete']
             }
         },
         {
             resource: 'course_materials',
             actions: {
-                own: ['view', 'delete', 'create'],
-                others: ['view', 'delete']
+                own: ['read', 'delete', 'create'],
+                others: ['read', 'delete']
             }
         },
         {
             resource: 'notifications',
             actions: {
-                own: ['view', 'delete', 'create'],
-                others: ['view', 'delete']
+                own: ['read', 'delete', 'create'],
+                others: ['read', 'delete']
             }
         }
     ]
@@ -92,29 +92,29 @@ export const validResourceActions: IResourcePermissionObject[] = [
     {
         resource: 'announcements',
         actions: {
-            own: ['view', 'update', 'delete', 'create'],
-            others: ['view', 'update', 'delete']
+            own: ['read', 'update', 'delete', 'create'],
+            others: ['read', 'update', 'delete']
         }
     },
     {
         resource: 'users',
         actions: {
-            own: ['view', 'update', 'delete'],
-            others: ['view', 'delete']
+            own: ['read', 'update', 'delete'],
+            others: ['read', 'delete']
         }
     },
     {
         resource: 'course_materials',
         actions: {
-            own: ['view', 'delete', 'create'],
-            others: ['view', 'delete']
+            own: ['read', 'delete', 'create'],
+            others: ['read', 'delete']
         }
     },
     {
         resource: 'notifications',
         actions: {
-            own: ['view', 'delete', 'create'],
-            others: ['view', 'delete']
+            own: ['read', 'delete', 'create'],
+            others: ['read', 'delete']
         }
     }
 ];

@@ -130,7 +130,7 @@ UserSchema.methods.generateRefreshToken = async function (
  * considering ownership (own vs. others).
  *
  * @param resource - The resource for which the permission is being checked.
- * @param action - The action (e.g., 'view', 'update', 'delete', 'create') for the resource.
+ * @param action - The action (e.g., 'read', 'update', 'delete', 'create') for the resource.
  * @param resourceOwnerId - The ID of the resource's owner.
  * @returns A boolean indicating whether the user has the specified permission.
  */
