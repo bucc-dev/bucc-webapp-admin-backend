@@ -4,6 +4,7 @@ import IUser from "./user";
 
 export interface CustomJwtPayload extends JwtPayload {
     _id: mongoose.Schema.Types.ObjectId;
+    reset?: boolean;
 }
 
 declare global {
