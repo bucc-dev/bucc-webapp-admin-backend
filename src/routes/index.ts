@@ -5,6 +5,7 @@ import authRouter from "./auth";
 import permissionRouter from "./permission";
 import cache from "../utils/cache";
 import courseMaterialRouter from "./courseMaterial";
+import announcementRouter from "./announcement";
 
 
 const router: Router = Router();
@@ -12,6 +13,7 @@ const router: Router = Router();
 router.use('/api/v1/users', userRouter);
 router.use('/api/v1/users', permissionRouter);
 router.use('/api/v1/auth', authRouter);
+router.use('/api/v1/announcements', announcementRouter);
 router.use('/api/v1/course-materials', courseMaterialRouter);
 
 router.use((err: CustomError, req: Request, res: Response, next: NextFunction) => {
