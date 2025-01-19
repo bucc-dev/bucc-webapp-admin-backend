@@ -17,7 +17,6 @@ import {
 	validResourceActions,
 } from '../config/roleConfig';
 import { ErrorHandler } from '../utils/errorHandler';
-import { Console } from 'console';
 
 config();
 
