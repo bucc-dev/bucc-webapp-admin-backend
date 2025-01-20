@@ -5,22 +5,24 @@ import { minimalRateLimiter, moderateRateLimiter, strictRateLimiter } from "../u
 
 const userRouter = Router();
 
-userRouter.route(['/self/profile', '/:targetUserId/profile']).get(authMiddleware, minimalRateLimiter, userController.getUser);
+userRouter.route(['/self/get', '/:targetUserId/get']).get(authMiddleware, minimalRateLimiter, userController.getUser);
 
-userRouter.route(['/self/profile/delete', '/:targetUserId/profile/delete']).delete(authMiddleware, minimalRateLimiter, userController.deleteUser);
+userRouter.route(['/self/delete', '/:targetUserId/delete']).delete(authMiddleware, minimalRateLimiter, userController.deleteUser);
 
-userRouter.route('/:targetUserId/profile/update/role').patch(authMiddleware, moderateRateLimiter, userController.updateUserRole);
+userRouter.route('/:targetUserId/update/role').patch(authMiddleware, moderateRateLimiter, userController.updateUserRole);
 
-userRouter.route('/self/profile/update/name').patch(authMiddleware, moderateRateLimiter, userController.updateUserName);
+userRouter.route('/self/update/name').patch(authMiddleware, moderateRateLimiter, userController.updateUserName);
 
-userRouter.route('/self/profile/update/password').patch(authMiddleware, moderateRateLimiter, userController.updateUserPassword);
+userRouter.route('/self/update/password').patch(authMiddleware, moderateRateLimiter, userController.updateUserPassword);
 
-userRouter.route(['/self/profile/forgot-password', '/self/profile/forgot-password/resend-verification-link']).post(strictRateLimiter, userController.forgotPassword);
+userRouter.route(['/self/forgot-password', '/self/forgot-password/resend-verification-link']).post(strictRateLimiter, userController.forgotPassword);
 
-userRouter.route('/self/profile/reset-password').patch(authMiddleware, moderateRateLimiter, userController.resetPassword);
+userRouter.route('/self/reset-password').patch(authMiddleware, moderateRateLimiter, userController.resetPassword);
 
-userRouter.route(['/self/profile/update/email', '/self/profile/update/email/resend-otp']).post(authMiddleware, strictRateLimiter, userController.updateEmail);
+userRouter.route(['/self/update/email', '/self/update/email/resend-otp']).post(authMiddleware, strictRateLimiter, userController.updateEmail);
 
-userRouter.route('/self/profile/update/set-new-email').patch(moderateRateLimiter, userController.setNewEmail);
+userRouter.route('/self/update/set-new-email').patch(moderateRateLimiter, userController.setNewEmail);
+
+// userRouter.route(['/self/announcements/paginated-get', '/:targetUserId/announcements/paginated-get']).get(authMiddleware, moderateRateLimiter);
 
 export default userRouter;
