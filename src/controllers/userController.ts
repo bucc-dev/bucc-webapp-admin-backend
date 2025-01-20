@@ -13,8 +13,10 @@ import { CustomJwtPayload } from '../interfaces';
 
 config();
 
+const defaultExcludedFields: string = '-password -refreshTokens';
 
 class UserController {
+
 	static async getUser(req: Request, res: Response, next: NextFunction) {
 		let targetUserId: string | mongoose.Schema.Types.ObjectId = req.params.targetUserId;
 
@@ -31,9 +33,13 @@ class UserController {
 				targetUser = req.user;
 			}
 
+			// send the user object without sensitive fields
+			const { password, refreshTokens, ...responseUser } = targetUser;
+			const user = responseUser;
+
 			return res.status(200).json({
 				status: 'succcess',
-				data: targetUser.toJSON()
+				data: user
 			});
 		} catch (error) {
 			return next(error);
@@ -68,7 +74,7 @@ class UserController {
 		try {
 			await checkUserPermission(req.user, 'users', 'update', targetUserId);
 
-			const user = await User.findById(targetUserId);
+			const user = await User.findById(targetUserId).select(defaultExcludedFields);
 			if (!user) {
 				return next(new ErrorHandler(404, 'User does not exist'));
 			}
@@ -107,9 +113,13 @@ class UserController {
 
 			await req.user.save();
 
+			// send the user object without sensitive fields
+			const { password, refreshTokens, ...responseUser } = req.user;
+			const user = responseUser;
+	  
 			return res.status(200).json({
 				status: 'success',
-				data: req.user
+				data: user
 			});
 		} catch (error) {
 			return next(error);
