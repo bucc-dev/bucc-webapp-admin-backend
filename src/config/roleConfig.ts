@@ -33,8 +33,8 @@ export const defaultPermissions: Record<
         {
             resource: 'announcements',
             actions: {
-                own: ['read', 'delete', 'create'],
-                others: ['read'],
+                own: ['read', 'update', 'delete', 'create'],
+                others: ['read', 'update'],
             },
         },
         { resource: 'users', actions: { own: ['read', 'update', 'delete'], others: ['read'] } },
@@ -44,8 +44,8 @@ export const defaultPermissions: Record<
         {
             resource: 'announcements',
             actions: {
-                own: ['read', 'delete', 'create'],
-                others: ['read', 'delete']
+                own: ['read', 'update', 'delete', 'create'],
+                others: ['read', 'update', 'delete']
             }
         },
         {
@@ -70,8 +70,8 @@ export const validResourceActions: IResourcePermissionObject[] = [
     {
         resource: 'announcements',
         actions: {
-            own: ['read', 'delete', 'create'],
-            others: ['read', 'delete']
+            own: ['read', 'update', 'delete', 'create'],
+            others: ['read', 'update', 'delete']
         }
     },
     {
