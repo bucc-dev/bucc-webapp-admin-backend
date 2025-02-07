@@ -45,7 +45,7 @@ export const defaultPermissions: Record<
             resource: 'announcements',
             actions: {
                 own: ['read', 'update', 'delete', 'create'],
-                others: ['read', 'update', 'delete']
+                others: ['read', 'delete']
             }
         },
         {
@@ -71,7 +71,7 @@ export const validResourceActions: IResourcePermissionObject[] = [
         resource: 'announcements',
         actions: {
             own: ['read', 'update', 'delete', 'create'],
-            others: ['read', 'update', 'delete']
+            others: ['read', 'delete']
         }
     },
     {
