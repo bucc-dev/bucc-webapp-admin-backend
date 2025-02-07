@@ -11,7 +11,7 @@ authRouter.route('/login').post(moderateRateLimiter, authController.login);
 
 authRouter.route('/logout').post(authMiddleware, minimalRateLimiter, authController.logout);
 
-authRouter.route('/verify-account').post(authMiddleware, moderateRateLimiter, authController.verifyAccountToLogin);
+authRouter.route('/verify-account').post(moderateRateLimiter, authController.verifyAccountToLogin);
 
 authRouter.route('/resend-account-verification-otp').post(strictRateLimiter, authController.resendOtp);
 
