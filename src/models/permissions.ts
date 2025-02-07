@@ -76,7 +76,7 @@ function validateInput(
 	if (currentUser.role !== 'super_admin') {
 		throw new ErrorHandler(
 			403,
-			`You do not have permission to ${operation} the permission.`
+			`Access denied`
 		);
 	}
 
