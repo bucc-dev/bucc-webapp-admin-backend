@@ -21,7 +21,7 @@ class UserController {
 		let targetUserId: string | mongoose.Schema.Types.ObjectId = req.params.targetUserId;
 
 		try {
-			await checkUserPermission(req.user, 'users', 'read', targetUserId);
+			await checkUserPermission(req.user, 'users', 'read');
 
 			let targetUser: IUser | null;
 			if (targetUserId) {
@@ -74,20 +74,20 @@ class UserController {
 		try {
 			await checkUserPermission(req.user, 'users', 'update', targetUserId);
 
-			const user = await User.findById(targetUserId).select(defaultExcludedFields);
-			if (!user) {
+			const targetUser = await User.findById(targetUserId).select(defaultExcludedFields);
+			if (!targetUser) {
 				return next(new ErrorHandler(404, 'User does not exist'));
 			}
-			if (user.role === newRole) {
+			if (targetUser.role === newRole) {
 				return next(new ErrorHandler(400, `User already has the ${newRole} role`));
 			}
 
-			user.role = newRole;
-			await user.save();
+			targetUser.role = newRole;
+			await targetUser.save();
 
 			return res.status(200).json({
 				status: 'success',
-				data: user
+				data: targetUser
 			});
 		} catch (error) {
 			return next(error);
