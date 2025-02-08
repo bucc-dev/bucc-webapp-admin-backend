@@ -1,55 +1,27 @@
-import mongoose from 'mongoose';;
-import IAnnouncement from '../interfaces/announcement';
+import mongoose from 'mongoose';
+import { IAnnouncementMedia, IAnnouncement } from '../interfaces/announcement';
 
-
-const AnnouncementSchema = new mongoose.Schema(
-	{
-        images: {
-            type: [
-                {
-                    data: Buffer,
-                    contentType: String,
-                }
-            ],
-            required: true
-        },
-        caption: {
-            type: String,
-            default: ''
-        },
-        user: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User',
-            required: true
-        },
-        comments: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Comment',
-        }]
-	},
-	{ timestamps: true }
+// Media Subdocument Schema
+const AnnouncementMediaSchema = new mongoose.Schema<IAnnouncementMedia>(
+  {
+    bucketName: { type: String, default: 'announcementmedia' },
+    mimeType: { type: String, required: true },
+    name: { type: String, required: true },
+    size: { type: String, required: true },
+    type: { type: String, enum: ['image', 'video'], required: true },
+  },
+  { _id: true }
 );
 
-AnnouncementSchema.pre('findOne', function(next) {
-    const query = this.getQuery(); // Get the query object
-    const announcementId = query._id;
-
-    this.populate({
-        path: 'user',
-        select: 'role firstname _id lastname'
-    })
-    // .populate({
-    //     path: 'comments',
-    //     match: { announcementId },
-    //     select: '',
-    //     populate: {
-    //         path: 'user', // Populate the 'user' field in each comment
-    //         select: 'role firstname _id lastname', // Only populate the 'name' field of the user in each comment
-    //     }
-    // })
-    next();
-});
+const AnnouncementSchema = new mongoose.Schema<IAnnouncement>(
+  {
+    media: [AnnouncementMediaSchema],
+    caption: { type: String, default: '' },
+    updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  },
+  { timestamps: true }
+);
 
 const Announcement = mongoose.model<IAnnouncement>('Announcement', AnnouncementSchema);
-
 export default Announcement;

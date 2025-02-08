@@ -1,15 +1,21 @@
 import mongoose, { Document } from 'mongoose';
+import IUser from './user';
 
-interface AnnouncementImage {
-  data: Buffer;
-  contentType: string;
+export interface IAnnouncementMedia {
+    bucketName: 'announcementmedia';
+    mimeType: string;
+    name: string;
+    size: string;
+    type: 'image' | 'video';
+    _id: mongoose.Schema.Types.ObjectId;
 }
 
-interface IAnnouncement extends Document {
-  images: AnnouncementImage[];
-  caption: string;
-  user: mongoose.Schema.Types.ObjectId;
-  createdAt: Date;
+export interface IAnnouncement extends Document {
+    media: IAnnouncementMedia[];
+    caption?: string;
+    updatedBy: mongoose.Schema.Types.ObjectId | IUser;
+    owner: mongoose.Schema.Types.ObjectId | IUser;
+    createdAt: Date;
+    updatedAt: Date;
+    _id: mongoose.Schema.Types.ObjectId
 }
-
-export default IAnnouncement;
