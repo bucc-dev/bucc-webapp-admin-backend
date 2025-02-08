@@ -8,7 +8,7 @@ import { ErrorHandler } from '../utils/errorHandler';
 import { sendPasswordResetEmail, sendVerificationMail } from '../utils/emails';
 import cache from '../utils/cache';
 import IUser from '../interfaces/user';
-import { checkUserPermission } from '../utils/controllerUtils';
+import { checkUserPermission } from '../utils/checkPermission';
 import { CustomJwtPayload } from '../interfaces';
 
 config();
