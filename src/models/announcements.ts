@@ -8,16 +8,22 @@ const AnnouncementMediaSchema = new mongoose.Schema<IAnnouncementMedia>(
     mimeType: { type: String, required: true },
     name: { type: String, required: true },
     size: { type: String, required: true },
-    type: { type: String, enum: ['image', 'video'], required: true },
+    key: { type: String, required: true }
   },
-  { _id: true }
+  { _id: false }
 );
 
 const AnnouncementSchema = new mongoose.Schema<IAnnouncement>(
   {
-    media: [AnnouncementMediaSchema],
+    media: {
+        type: [AnnouncementMediaSchema],
+        validate: {
+            validator: (value: any[]) => value.length <= 3,
+            message: 'An announcement can have at most 3 media files.'
+        }
+    },
     caption: { type: String, default: '' },
-    updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   },
   { timestamps: true }

@@ -6,14 +6,13 @@ export interface IAnnouncementMedia {
     mimeType: string;
     name: string;
     size: string;
-    type: 'image' | 'video';
-    _id: mongoose.Schema.Types.ObjectId;
+    key: string;
 }
 
 export interface IAnnouncement extends Document {
     media: IAnnouncementMedia[];
     caption?: string;
-    updatedBy: mongoose.Schema.Types.ObjectId | IUser;
+    updatedBy?: mongoose.Schema.Types.ObjectId | IUser;
     owner: mongoose.Schema.Types.ObjectId | IUser;
     createdAt: Date;
     updatedAt: Date;
