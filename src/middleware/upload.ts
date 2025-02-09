@@ -10,7 +10,7 @@ const s3Storage = multerS3({
   bucket: (req: any, file: Express.Multer.File, cb: (error: any, bucket?: string | undefined) => void) => {
     cb(null, req.body.bucketName);
   },
-  acl: "public-read",
+  acl: "private", // needs to be changed
   contentType: multerS3.AUTO_CONTENT_TYPE,
   key: (req: Express.Request, file: Express.Multer.File, cb: (error: any, key?: string) => void) => {
     const key = `${Date.now()}-${file.originalname}`;
