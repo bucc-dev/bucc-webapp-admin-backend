@@ -250,14 +250,14 @@ class authController {
 				const accessToken: string = jwt.sign(
 					payload,
 					process.env.JWT_SECRET as string,
-					{ expiresIn: '50min' }
+					{ expiresIn: '50min' } // temporary
 				);
 				const refreshToken: string = await user.generateRefreshToken(
 					payload
 				);
 
 				res.cookie('accessToken', accessToken, {
-					maxAge: 5 * 60 * 1000,
+					maxAge: 50 * 60 * 1000, // temporary
 					httpOnly: true,
 					secure: false, // change for prod
                     sameSite: true
