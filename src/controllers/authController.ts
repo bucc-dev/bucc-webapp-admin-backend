@@ -73,13 +73,13 @@ class authController {
 			res.cookie('accessToken', newAccessToken, {
 				maxAge: 5 * 60 * 1000,
 				httpOnly: true,
-				secure: true,
+				secure: false, // change for prod
 				sameSite: true,
 			}); // 5 minutes
 			res.cookie('refreshToken', newRefreshToken, {
 				maxAge: 7 * 24 * 60 * 60 * 1000,
 				httpOnly: true,
-				secure: true,
+				secure: false, // change for prod
 				sameSite: true,
 				path: '/auth/refresh',
 			}); // 7 days
@@ -177,13 +177,13 @@ class authController {
 				res.cookie('accessToken', accessToken, {
 					maxAge: 5 * 60 * 1000,
 					httpOnly: true,
-					secure: true,
+					secure: false, // change for prod
                     sameSite: true
 				}); // 5min
 				res.cookie('refreshToken', refreshToken, {
 					maxAge: 7 * 24 * 60 * 60 * 1000,
 					httpOnly: true,
-					secure: true,
+					secure: false, // change for prod
                     sameSite: true,
                     path: '/auth/refresh'
 				}); // 7d
@@ -259,13 +259,13 @@ class authController {
 				res.cookie('accessToken', accessToken, {
 					maxAge: 5 * 60 * 1000,
 					httpOnly: true,
-					secure: true,
+					secure: false, // change for prod
                     sameSite: true
 				}); // 5min
 				res.cookie('refreshToken', refreshToken, {
 					maxAge: 7 * 24 * 60 * 60 * 1000,
 					httpOnly: true,
-					secure: true,
+					secure: false, // change for prod
                     sameSite: true,
                     path: '/auth/refresh'
 				}); // 7d
