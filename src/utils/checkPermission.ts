@@ -63,6 +63,6 @@ export async function checkUserPermission(
 			throw new ErrorHandler(403, 'Access denied');
 		}
 	} catch (error) {
-		return error;
+		throw error;
 	}
 }
