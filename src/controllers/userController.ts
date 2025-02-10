@@ -68,7 +68,7 @@ class UserController {
 		const newRole = req.body.newRole;
 
 		if (req.user._id.toString() ===  targetUserId) {
-			return next(new ErrorHandler(400, 'User cannot update their own role'));
+			return next(new ErrorHandler(403, 'User cannot update their own role'));
 		}
 
 		try {
@@ -95,10 +95,10 @@ class UserController {
 	}
 
 	static async updateUserName(req: Request, res: Response, next: NextFunction) {
-		const { newFirstName, newLastName } = req.body;
+		const { firstname: newFirstName, lastname: newLastName } = req.body;
 
 		if (!newFirstName && !newLastName) {
-			return next(new ErrorHandler(400, ''));
+			return next(new ErrorHandler(400, 'At least one field is required'));
 		}
 
 		try {
