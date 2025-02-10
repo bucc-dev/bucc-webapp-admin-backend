@@ -7,23 +7,11 @@ bucc-webapp-admin-backend
   - [Handler Usage](#handler-usage)
 - [Permission System](#permission-system)
   - [Check permission function usage](#check-permission-function-usage)
+- [File Upload Middleware (upload)](#file-upload-middleware-upload)
+  - [Key Feature](#key-feature)
+  - [Upload Usage Example](#upload-usage-example)
+  - [Configuration Details](#configuration-details)
 - [What is left?](#what-is-left)
-
-**Define environmental variables for these**
-**IMPORTANT:**
-
-- Database
-  - MONGODB_URI
-- Redis
-  - REDIS_HOST
-  - REDIS_PORT
-  - REDIS_PASSWORD
-- Email
-  - EMAIL_USER
-  - EMAIL_PASS
-- Server
-  - PORT
-  - JWT_SECRET
 
 ## Custom Error Handler
 
@@ -50,13 +38,13 @@ next(new ErrorHandler(401, 'Login required'));
 ## Permission System
 
 [config file](./src/config/roleConfig.ts)
-The system makes use of Attribute Based Access Control - ABAC, which is a model that grants access based on attributes (or characteristics) of the user, the resource, and the environment. it is also mixed with Role Based Access control as it also sets default permissions depending on your role.
+The system makes use of Attribute Based Access Control (ABAC), which is a model that grants access based on attributes (or characteristics) of the user. it is also mixed with Role Based Access control as it also sets default permissions depending on your role.
 
 For the current code, the attributes include:
 
-- **User Role:** `admin, super_admin`
+- **User Role:** `student, admin, super_admin`
 
-- **Resource:** `announcements, users, course_materials, notifications`
+- **Resource:** `announcements, users, course_materials`
 
 - **Actions:** `read, update, delete, create`
 
@@ -73,26 +61,68 @@ import { checkUserPermission } from '../utils/controllerUtils';
 
 /**
  * checks if the user has the specified permission and does nothing it he/she has it.
- * 
+ * It is used for controller functions
+ *
  * @param {IUser} user - The user object.
  * @param {string} resource - The resource to check permissions for.
  * @param {string} action - The action to check permissions for.
- * @param {'own' | 'others'} scope - The scope of the action (own or others).
- * @param {string | mongoose.Schema.Types.ObjectId} [targetUserId] - The target user ID (optional).
- * 
+ * @param {string | mongoose.Schema.Types.ObjectId} [resourceOwnerId] - The ID of the resource owner (optional).
+ *
  * @throws {ErrorHandler} If the user does not have the required permission.
  */
-await checkUserPermission(req.user, 'users', 'read', scope, targetUserId);
+await checkUserPermission(req.user, 'users', 'read', targetUserId);
 
 ```
+
+## File Upload Middleware (upload)
+
+The upload middleware handles direct streaming of files to Cloudflare R2 storage using multer-S3. It enforces validation checks before allowing file uploads to proceed.
+
+### Key Feature
+
+**Direct Stream to Bucket:** Files are streamed directly to R2 storage without intermediate local disk or in-memory storage because of limited server resources.
+
+[**Custom File Upload Restrictions:**](./src/middleware/upload.ts)
+
+- Only allows image/video files (MIME types starting with image/ or video/) for announcements
+- Requires valid bucketName in request body
+- Requires valid resource type in request body
+- Verifies user has `create` permissions for the specified resource
+- At least one file is required
+
+Add reestrictions as needed
+
+### Upload Usage Example
+
+```Typescript
+import { upload } from './middleware/upload';
+
+announcementRouter.route('/')
+  .post(
+    authMiddleware,          // First authenticate user
+    moderateRateLimiter,     // Apply rate limiting as needed
+    upload.array('file', 3), // Process up to 3 files in 'file' field, i think it can be set to infinity.
+    announcementController.postAnnouncement // Handle business logic
+  );
+```
+
+### Configuration Details
+
+- **Storage:** Uses Cloudflare R2 via AWS S3 SDK
+
+- **Access Control List (ACL):** All files uploaded as private <!-- url need to be signed before it can be viewed. -->
+
+- **Naming:** Auto-generates unique filenames using `Date.now()-file.originalname`
+
+- **Content Type:** Preserves original MIME type detection
+
 ## What is left?
 
+- add guard to scan files for virus before any upload
 - Controller and routes for course_materials
-- Controller and routes for announcements
 - setup of web socket for real-time (if necessary), for notifications
 - Testing
 - API Documentation using swagger
 - Email for the bucc web app
-- create/deploy on production server
 
-and many more
+and many more.
