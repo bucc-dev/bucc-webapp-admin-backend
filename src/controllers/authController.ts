@@ -33,7 +33,10 @@ class authController {
 	) {
 		const refreshToken: string | undefined = req.cookies?.refreshToken;
 
+		console.error(1)
+		console.error(req.originalUrl)
 		if (!refreshToken) return next(new ErrorHandler(401, 'Login required'));
+		console.error(2)
 
 		const session = await mongoose.startSession();
 		session.startTransaction();
@@ -73,17 +76,17 @@ class authController {
 			res.cookie('accessToken', newAccessToken, {
 				maxAge: 5 * 60 * 1000,
 				httpOnly: true,
-				secure: false, // change for prod
-				sameSite: true,
+				secure: true, // change for prod
+				sameSite: 'none'
 			}); // 5 minutes
 			res.cookie('refreshToken', newRefreshToken, {
 				maxAge: 7 * 24 * 60 * 60 * 1000,
 				httpOnly: true,
-				secure: false, // change for prod
-				sameSite: true,
-				path: '/auth/refresh',
+				secure: true, // change for prod
+				path: '/api/v1/auth/refresh',
+				sameSite: 'none'
 			}); // 7 days
-
+console.error("SUCCESSFUL REFRESH");
 			return res.status(200).end();
 		} catch (error) {
 			await session.abortTransaction();
@@ -178,14 +181,14 @@ class authController {
 					maxAge: 5 * 60 * 1000,
 					httpOnly: true,
 					secure: false, // change for prod
-                    sameSite: true
+					sameSite: 'none'
 				}); // 5min
 				res.cookie('refreshToken', refreshToken, {
 					maxAge: 7 * 24 * 60 * 60 * 1000,
 					httpOnly: true,
 					secure: false, // change for prod
-                    sameSite: true,
-                    path: '/auth/refresh'
+                    path: '/api/v1/auth/refresh',
+					sameSite: 'none'
 				}); // 7d
 
 				return res.status(200).json({
@@ -242,6 +245,7 @@ class authController {
 				return next(new ErrorHandler(403, 'Account is not verified'));
 
 			if (user) {
+				console.error(user);
 				const payload: CustomJwtPayload = {
 					_id: user._id,
 					email: user.email,
@@ -259,15 +263,15 @@ class authController {
 				res.cookie('accessToken', accessToken, {
 					maxAge: 50 * 60 * 1000, // temporary
 					httpOnly: true,
-					secure: false, // change for prod
-                    sameSite: true
+					secure: true, // change for prod
+					sameSite: 'none'
 				}); // 5min
 				res.cookie('refreshToken', refreshToken, {
 					maxAge: 7 * 24 * 60 * 60 * 1000,
 					httpOnly: true,
-					secure: false, // change for prod
-                    sameSite: true,
-                    path: '/auth/refresh'
+					secure: true, // change for prod
+                    path: '/api/v1/auth/refresh',
+					sameSite: 'none'
 				}); // 7d
 
 				await cache.storeUser(user);
@@ -284,17 +288,16 @@ class authController {
 
 	static async logout(req: Request, res: Response, next: NextFunction) {
         const accessToken: string = req.cookies?.accessToken;
-        
+		console.error(req.user);
 		try {
             await cache.blacklistAccessToken(req.user._id, accessToken);
     
 			if (req.user.refreshTokens && req.user.refreshTokens.length > 0) {
-				req.user.refreshTokens = [];
-				await req.user.save();
+				await User.findByIdAndUpdate({ _id: req.user._id }, { $push: { refreshTokens: [] } });
 			}
 
-			res.clearCookie('accessToken', { httpOnly: true, secure: true, sameSite: true });
-			res.clearCookie('refreshToken', { httpOnly: true, secure: true, sameSite: true, path: '/auth/refresh' });
+			res.clearCookie('accessToken', { httpOnly: true, secure: true }); // temporarily false
+			res.clearCookie('refreshToken', { httpOnly: true, secure: true, path: '/api/v1/auth/refresh' }); // temporarily false
 
 			await cache.removeUser(req.user._id);
 
