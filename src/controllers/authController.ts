@@ -33,10 +33,7 @@ class authController {
 	) {
 		const refreshToken: string | undefined = req.cookies?.refreshToken;
 
-		console.error(1)
-		console.error(req.originalUrl)
 		if (!refreshToken) return next(new ErrorHandler(401, 'Login required'));
-		console.error(2)
 
 		const session = await mongoose.startSession();
 		session.startTransaction();
@@ -76,13 +73,13 @@ class authController {
 			res.cookie('accessToken', newAccessToken, {
 				maxAge: 5 * 60 * 1000,
 				httpOnly: true,
-				secure: true, // change for prod
+				secure: true,
 				sameSite: 'none'
 			}); // 5 minutes
 			res.cookie('refreshToken', newRefreshToken, {
 				maxAge: 7 * 24 * 60 * 60 * 1000,
 				httpOnly: true,
-				secure: true, // change for prod
+				secure: true,
 				path: '/api/v1/auth/refresh',
 				sameSite: 'none'
 			}); // 7 days
@@ -180,13 +177,13 @@ console.error("SUCCESSFUL REFRESH");
 				res.cookie('accessToken', accessToken, {
 					maxAge: 5 * 60 * 1000,
 					httpOnly: true,
-					secure: false, // change for prod
+					secure: true,
 					sameSite: 'none'
 				}); // 5min
 				res.cookie('refreshToken', refreshToken, {
 					maxAge: 7 * 24 * 60 * 60 * 1000,
 					httpOnly: true,
-					secure: false, // change for prod
+					secure: true,
                     path: '/api/v1/auth/refresh',
 					sameSite: 'none'
 				}); // 7d
@@ -245,7 +242,6 @@ console.error("SUCCESSFUL REFRESH");
 				return next(new ErrorHandler(403, 'Account is not verified'));
 
 			if (user) {
-				console.error(user);
 				const payload: CustomJwtPayload = {
 					_id: user._id,
 					email: user.email,
@@ -254,22 +250,22 @@ console.error("SUCCESSFUL REFRESH");
 				const accessToken: string = jwt.sign(
 					payload,
 					process.env.JWT_SECRET as string,
-					{ expiresIn: '50min' } // temporary
+					{ expiresIn: '5min' }
 				);
 				const refreshToken: string = await user.generateRefreshToken(
 					payload
 				);
 
 				res.cookie('accessToken', accessToken, {
-					maxAge: 50 * 60 * 1000, // temporary
+					maxAge: 5 * 60 * 1000,
 					httpOnly: true,
-					secure: true, // change for prod
+					secure: true,
 					sameSite: 'none'
 				}); // 5min
 				res.cookie('refreshToken', refreshToken, {
 					maxAge: 7 * 24 * 60 * 60 * 1000,
 					httpOnly: true,
-					secure: true, // change for prod
+					secure: true,
                     path: '/api/v1/auth/refresh',
 					sameSite: 'none'
 				}); // 7d
@@ -288,7 +284,6 @@ console.error("SUCCESSFUL REFRESH");
 
 	static async logout(req: Request, res: Response, next: NextFunction) {
         const accessToken: string = req.cookies?.accessToken;
-		console.error(req.user);
 		try {
             await cache.blacklistAccessToken(req.user._id, accessToken);
     
@@ -296,8 +291,8 @@ console.error("SUCCESSFUL REFRESH");
 				await User.findByIdAndUpdate({ _id: req.user._id }, { $push: { refreshTokens: [] } });
 			}
 
-			res.clearCookie('accessToken', { httpOnly: true, secure: true }); // temporarily false
-			res.clearCookie('refreshToken', { httpOnly: true, secure: true, path: '/api/v1/auth/refresh' }); // temporarily false
+			res.clearCookie('accessToken', { httpOnly: true, secure: true });
+			res.clearCookie('refreshToken', { httpOnly: true, secure: true, path: '/api/v1/auth/refresh' });
 
 			await cache.removeUser(req.user._id);
 
