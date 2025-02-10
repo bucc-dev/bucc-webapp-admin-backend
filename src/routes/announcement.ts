@@ -8,7 +8,7 @@ const announcementRouter = Router();
 
 announcementRouter.route('/:announcementId').get(authMiddleware, moderateRateLimiter, announcementController.getAnnouncement);
 
-announcementRouter.route('/').post(authMiddleware, strictRateLimiter, upload.array('file', 3), announcementController.postAnnouncement);
+announcementRouter.route('/').post(authMiddleware, moderateRateLimiter, upload.array('file', 3), announcementController.postAnnouncement);
 
 announcementRouter.route('/:announcementId/update-caption').patch(authMiddleware, moderateRateLimiter, announcementController.updateAnnouncementCaption);
 
