@@ -23,7 +23,7 @@ mongoose.connect(process.env.MONGODB_URI as string)
 
 const allowedOrigins: string[] = [host];
 app.use(cors({
-    origin: allowedOrigins,
+    origin: true, // allowedOrigins,allow all sites temporarily 
     credentials: true
 }));
 
