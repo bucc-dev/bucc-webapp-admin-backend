@@ -26,7 +26,6 @@ router.all('*', (req: Request, res: Response, next: NextFunction) => {
 });
 
 router.use('/api/v1/ping', (req, res) => {
-    cache.connected
     return res.status(200).end();
 });
 
