@@ -16,7 +16,7 @@ class PermissionController {
         }
 
 		try {
-            // students can't view permission and admins can only view their permission
+            // students can't view permissions and admins can only view their own permissions, while super_admin can view anybody's own.
 			if (
 				req.user.role === 'student' ||
 				(req.user._id.toString() !== targetUserId &&
