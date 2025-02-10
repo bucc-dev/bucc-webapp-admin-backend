@@ -71,7 +71,7 @@ import { checkUserPermission } from '../utils/controllerUtils';
  * @throws {ErrorHandler} If the user does not have the required permission.
  */
 
-// scope = 'others' - implying the authenticated user does not own the target resource for CRUD operations
+// setting resourceOwnerId implies: scope = 'others' - implying the authenticated user does not own the target resource for CRUD operations
 await checkUserPermission(req.user, 'users', 'read', targetUserId);
 
 // scope = 'own'
