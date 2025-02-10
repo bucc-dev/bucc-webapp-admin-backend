@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
-import cache from './cache.js';
-import { ErrorHandler } from './errorHandler.js';
-import IUser from '../interfaces/user.js';
+import cache from './cache';
+import { ErrorHandler } from './errorHandler';
+import IUser from '../interfaces/user';
 
 /**
  * Generates OTP and Sends a verification email with the OTP to the specified user.
