@@ -7,6 +7,10 @@ bucc-webapp-admin-backend
   - [Handler Usage](#handler-usage)
 - [Permission System](#permission-system)
   - [Check permission function usage](#check-permission-function-usage)
+- [Authentication Middleware (authMiddleware)](#authentication-middleware-authmiddleware)
+  - [Key Features](#key-features)
+  - [Usage Example](#usage-example)
+  - [Flow Overview](#flow-overview)
 - [File Upload Middleware (upload)](#file-upload-middleware-upload)
   - [Key Feature](#key-feature)
   - [Upload Usage Example](#upload-usage-example)
@@ -78,6 +82,50 @@ await checkUserPermission(req.user, 'users', 'read', targetUserId);
 await checkUserPermission(req.user, 'users', 'read');
 
 ```
+
+## Authentication Middleware (authMiddleware)
+
+The [authMiddleware](./src/middleware/authMiddleware.ts) is a secure authentication layer that verifies JWT tokens and attaches authenticated user data to the request object. It integrates with Redis caching for performance optimization and token blacklisting.
+
+### Key Features
+
+- **JWT Verification:** Validates access tokens using environment-secured secret
+
+- **Redis Caching:** Stores user data in Redis for quick retrieval of the same user
+
+- **Token Blacklisting:** Checks for revoked tokens
+
+- **Account Verification:** Ensures accounts are verified before access
+
+- **Error Handling:** Provides clear error messages for various auth failures
+
+### Usage Example
+
+```Typescript
+import { authMiddleware } from './middleware/auth';
+
+router.route('/protected')
+  .get(
+    authMiddleware,  // Verify authentication
+    controller.handler // Protected route handler
+  );
+```
+
+### Flow Overview
+
+Extracts access token from cookies
+
+Verifies token signature and expiration
+
+Checks Redis cache for user data
+
+if not found in cache, Falls back to database and stores in cache upon successful retreival
+
+Attaches user data to Request object i.e `req.user`
+
+returns `next` to move forward
+
+Handles various error scenarios
 
 ## File Upload Middleware (upload)
 
