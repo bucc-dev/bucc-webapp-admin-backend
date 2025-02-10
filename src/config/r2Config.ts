@@ -1,4 +1,4 @@
-import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import dotenv from "dotenv";
 import { ErrorHandler } from "../utils/errorHandler";
@@ -25,11 +25,26 @@ export const r2Client = new S3Client({
 export type ValidBuckets = 'announcementmedia';
 export const validBuckets: ValidBuckets[] = ['announcementmedia'];
 
-export async function getSignedUrlForFile(bucketName: ValidBuckets, key: string) {
-  const command = new GetObjectCommand({
-    Bucket: bucketName,
-    Key: key,
-  });
+// Associated functions
 
-  return await getSignedUrl(r2Client, command, { expiresIn: 86400 }); // 24 hours
+/**
+ * Generates a signed URL for accessing a file in the specified bucket.
+ * @param {ValidBuckets} bucket - The name of the bucket.
+ * @param {string} key - The file's key in the bucket.
+ * @returns {Promise<string>} - A signed URL valid for 24 hours.
+ */
+export async function getSignedUrlForFile(bucket: ValidBuckets, key: string): Promise<string> {
+  const command = new GetObjectCommand({ Bucket: bucket, Key: key });
+  return await getSignedUrl(r2Client, command, { expiresIn: 86400 });
+}
+
+/**
+ * Deletes an object from the specified bucket.
+ * @param {ValidBuckets} bucket - The name of the bucket.
+ * @param {string} key - The file's key in the bucket.
+ * @returns {Promise<void>} - Resolves when deletion is complete.
+ */
+export async function deleteBucketObject(bucket: ValidBuckets, key: string): Promise<void> {
+  const command = new DeleteObjectCommand({ Bucket: bucket, Key: key });
+  await r2Client.send(command);
 }
