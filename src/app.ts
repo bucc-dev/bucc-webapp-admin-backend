@@ -13,7 +13,7 @@ const app = express();
 
 const port: number = Number(process.env.PORT) || 3000;
 const host: string = '0.0.0.0';
-const serverURL: string = `http://localhost:${port}`;
+const serverURL: string = process.env.BACKEND_URL as string;
 
 mongoose.connect(process.env.MONGODB_URI as string)
     .then(() => console.log('MongoDB is connected'))
@@ -21,9 +21,9 @@ mongoose.connect(process.env.MONGODB_URI as string)
         console.log(`Failed to connect to mongodb: ${error}`);
     });
 
-const allowedOrigins: string[] = [host];
+const allowedOrigins: string[] = [host, serverURL];
 app.use(cors({
-    origin: true, // allowedOrigins,allow all sites temporarily 
+    origin: allowedOrigins,
     credentials: true
 }));
 
@@ -39,11 +39,13 @@ app.listen(port, host, () => {
 
 // to keep render and redis alive
 setInterval(async () => {
-    // https.get(`${serverURL}/api/v1/ping`).on('error', (error) => {
-    //     console.error('Error pinging server:', error);
-    // });
+    if (serverURL) {
+        https.get(`${serverURL}/api/v1/ping`).on('error', (error) => {
+            console.error('Error pinging server:', error);
+        });
+    }
 
     if (cache.connected) {
         await cache.client.set('keep-alive-key', 'keep-alive-value', { EX: 15 * 60 });
     }
-}, 15 * 60 * 1000); // 15 minutes
+},  15 * 60 * 1000); // 15 minutes
