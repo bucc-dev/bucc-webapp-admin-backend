@@ -27,7 +27,7 @@ function fileFilter(req: any, file: Express.Multer.File, cb: (error: any, accept
     return cb(new ErrorHandler(400, "A valid resource is required"));
   }
 
-  if (!(file.mimetype.startsWith("image/") || file.mimetype.startsWith("video/"))) {
+  if ((!(file.mimetype.startsWith("image/") || file.mimetype.startsWith("video/"))) && req.body.resource === 'announcements') {
     return cb(new ErrorHandler(400, "Only image and video files are allowed"));
   }
 
