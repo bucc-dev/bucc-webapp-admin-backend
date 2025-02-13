@@ -6,14 +6,14 @@ import { upload } from "../middleware/upload";
 
 const announcementRouter = Router();
 
-announcementRouter.route('/:announcementId').get(authMiddleware, moderateRateLimiter, announcementController.getAnnouncement);
+announcementRouter.route('/:announcementId').get(moderateRateLimiter, authMiddleware, announcementController.getAnnouncement);
 
-announcementRouter.route('/').post(authMiddleware, moderateRateLimiter, upload.array('file', 3), announcementController.postAnnouncement);
+announcementRouter.route('/').post(moderateRateLimiter, authMiddleware, upload.array('file', 3), announcementController.postAnnouncement);
 
-announcementRouter.route('/:announcementId/update-caption').patch(authMiddleware, moderateRateLimiter, announcementController.updateAnnouncementCaption);
+announcementRouter.route('/:announcementId/update-caption').patch(moderateRateLimiter, authMiddleware, announcementController.updateAnnouncementCaption);
 
-announcementRouter.route('/:announcementId').delete(authMiddleware, moderateRateLimiter, announcementController.deleteAnnouncement);
+announcementRouter.route('/:announcementId').delete(moderateRateLimiter, authMiddleware, announcementController.deleteAnnouncement);
 
-announcementRouter.route('/').get(authMiddleware, moderateRateLimiter, announcementController.paginatedGet);
+announcementRouter.route('/').get(moderateRateLimiter, authMiddleware, announcementController.paginatedGet);
 
 export default announcementRouter;

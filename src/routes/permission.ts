@@ -5,12 +5,12 @@ import { minimalRateLimiter } from "../utils/limiters";
 
 const permissionRouter = Router();
 
-permissionRouter.route('/:targetUserId/permissions/get').get(authMiddleware, minimalRateLimiter, PermissionController.getPermission);
+permissionRouter.route('/:targetUserId/permissions/get').get(minimalRateLimiter, authMiddleware, PermissionController.getPermission);
 
-permissionRouter.route('/self/permission/check').get(authMiddleware, minimalRateLimiter, PermissionController.checkPermission);
+permissionRouter.route('/self/permission/check').get(minimalRateLimiter, authMiddleware, PermissionController.checkPermission);
 
-permissionRouter.route('/:targetUserId/permission/grant').patch(authMiddleware, minimalRateLimiter, PermissionController.grantPermission);
+permissionRouter.route('/:targetUserId/permission/grant').patch(minimalRateLimiter, authMiddleware, PermissionController.grantPermission);
 
-permissionRouter.route('/:targetUserId/permission/revoke').patch(authMiddleware, minimalRateLimiter, PermissionController.revokePermission);
+permissionRouter.route('/:targetUserId/permission/revoke').patch(minimalRateLimiter, authMiddleware, PermissionController.revokePermission);
 
 export default permissionRouter;
