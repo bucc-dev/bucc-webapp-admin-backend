@@ -66,16 +66,16 @@ class authController {
 				payload,
 				secret,
 				{
-					expiresIn: '50min',
+					expiresIn: '15min',
 				}
 			);
 
 			res.cookie('accessToken', newAccessToken, {
-				maxAge: 5 * 60 * 1000,
+				maxAge: 15 * 60 * 1000,
 				httpOnly: true,
 				secure: true,
 				sameSite: 'none'
-			}); // 5 minutes
+			}); // 15 minutes
 			res.cookie('refreshToken', newRefreshToken, {
 				maxAge: 7 * 24 * 60 * 60 * 1000,
 				httpOnly: true,
@@ -166,7 +166,7 @@ console.error("SUCCESSFUL REFRESH");
 				const accessToken: string = jwt.sign(
 					payload,
 					process.env.JWT_SECRET as string,
-					{ expiresIn: '5min' }
+					{ expiresIn: '15min' }
 				);
 
 				// this function saves state at the end
@@ -175,11 +175,11 @@ console.error("SUCCESSFUL REFRESH");
 				);
 
 				res.cookie('accessToken', accessToken, {
-					maxAge: 5 * 60 * 1000,
+					maxAge: 15 * 60 * 1000,
 					httpOnly: true,
 					secure: true,
 					sameSite: 'none'
-				}); // 5min
+				}); // 15min
 				res.cookie('refreshToken', refreshToken, {
 					maxAge: 7 * 24 * 60 * 60 * 1000,
 					httpOnly: true,
@@ -250,18 +250,18 @@ console.error("SUCCESSFUL REFRESH");
 				const accessToken: string = jwt.sign(
 					payload,
 					process.env.JWT_SECRET as string,
-					{ expiresIn: '5min' }
+					{ expiresIn: '15min' }
 				);
 				const refreshToken: string = await user.generateRefreshToken(
 					payload
 				);
 
 				res.cookie('accessToken', accessToken, {
-					maxAge: 5 * 60 * 1000,
+					maxAge: 15 * 60 * 1000,
 					httpOnly: true,
 					secure: true,
 					sameSite: 'none'
-				}); // 5min
+				}); // 15min
 				res.cookie('refreshToken', refreshToken, {
 					maxAge: 7 * 24 * 60 * 60 * 1000,
 					httpOnly: true,
