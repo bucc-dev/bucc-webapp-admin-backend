@@ -6,26 +6,26 @@ import announcementController from "../controllers/announcementController";
 
 const userRouter = Router();
 
-userRouter.route('/:targetUserId').get(authMiddleware, minimalRateLimiter, userController.getUser);
+userRouter.route('/:targetUserId').get(minimalRateLimiter, authMiddleware, userController.getUser);
 
-userRouter.route('/:targetUserId').delete(authMiddleware, minimalRateLimiter, userController.deleteUser);
+userRouter.route('/:targetUserId').delete(minimalRateLimiter, authMiddleware, userController.deleteUser);
 
-userRouter.route('/:targetUserId/update/role').patch(authMiddleware, moderateRateLimiter, userController.updateUserRole);
+userRouter.route('/:targetUserId/update/role').patch(moderateRateLimiter, authMiddleware, userController.updateUserRole);
 
-userRouter.route('/self/update/name').patch(authMiddleware, moderateRateLimiter, userController.updateUserName);
+userRouter.route('/self/update/name').patch(moderateRateLimiter, authMiddleware, userController.updateUserName);
 
-userRouter.route('/self/update/password').patch(authMiddleware, moderateRateLimiter, userController.updateUserPassword);
+userRouter.route('/self/update/password').patch(moderateRateLimiter, authMiddleware, userController.updateUserPassword);
 
 userRouter.route('/forgot-password').post(strictRateLimiter, userController.forgotPassword);
 
-userRouter.route('/reset-password').patch(authMiddleware, moderateRateLimiter, userController.resetPassword);
+userRouter.route('/reset-password').patch(moderateRateLimiter, authMiddleware, userController.resetPassword);
 
-userRouter.route('/self/update/email-otp').post(authMiddleware, strictRateLimiter, userController.updateEmail);
+userRouter.route('/self/update/email-otp').post(strictRateLimiter, authMiddleware, userController.updateEmail);
 
-userRouter.route('/self/update/set-new-email').patch(authMiddleware, moderateRateLimiter, userController.setNewEmail);
+userRouter.route('/self/update/set-new-email').patch(moderateRateLimiter, authMiddleware, userController.setNewEmail);
 
-userRouter.route('/:targetUserId/announcements').get(authMiddleware, moderateRateLimiter, announcementController.paginatedGet);
+userRouter.route('/:targetUserId/announcements').get(moderateRateLimiter, authMiddleware, announcementController.paginatedGet);
 
-userRouter.route('/:targetUserId/announcements/:announcementId').get(authMiddleware, moderateRateLimiter, announcementController.getAnnouncement);
+userRouter.route('/:targetUserId/announcements/:announcementId').get(moderateRateLimiter, authMiddleware, announcementController.getAnnouncement);
 
 export default userRouter;
