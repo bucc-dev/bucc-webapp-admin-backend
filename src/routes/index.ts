@@ -1,10 +1,12 @@
 import { Response, Request, NextFunction, Router } from "express";
+import swaggerUi from "swagger-ui-express";
 import { handleError, CustomError } from "../utils/errorHandler";
 import userRouter from "./user";
 import authRouter from "./auth";
 import permissionRouter from "./permission";
 import cache from "../utils/cache";
 import announcementRouter from "./announcement";
+import swaggerSpec from "../docs/swagger";
 
 
 const router: Router = Router();
@@ -13,6 +15,10 @@ router.use('/api/v1/users', userRouter);
 router.use('/api/v1/users', permissionRouter);
 router.use('/api/v1/auth', authRouter);
 router.use('/api/v1/announcements', announcementRouter);
+router.use("/api/v1/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+router.get("/", (req: Request, res: Response) => {
+    res.redirect("/api/v1/docs");
+})
 
 router.use((err: CustomError, req: Request, res: Response, next: NextFunction) => {
     handleError(err, res);
