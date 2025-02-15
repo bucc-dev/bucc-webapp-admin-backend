@@ -2,10 +2,14 @@
  * @openapi
  * components:
  *   securitySchemes:
- *     cookieAuth:
+ *     accessTokenCookie:
  *       type: apiKey
  *       in: cookie
  *       name: accessToken
+ *     refreshTokenCookie:
+ *       type: apiKey
+ *       in: cookie
+ *       name: refreshToken
  *   responses:
  *     RateLimitMinimal:
  *       description: Too many requests – rate limit exceeded (100 requests every 5 minutes).
