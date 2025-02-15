@@ -71,6 +71,10 @@ class UserController {
 			return next(new ErrorHandler(403, 'User cannot update their own role'));
 		}
 
+		if (!(newRole in ['admin', 'student', 'super_admin'])) {
+			return next(new ErrorHandler(400, 'Invalid role'));
+		}
+
 		try {
 			await checkUserPermission(req.user, 'users', 'update', targetUserId);
 
