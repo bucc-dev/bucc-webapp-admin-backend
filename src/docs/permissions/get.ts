@@ -7,6 +7,8 @@
  *       Retrieves the permission document for the user specified by `targetUserId`. 
  *       Students cannot view permissions and admins can only view their own permissions; only super_admin can view any user's permissions.
  *       Rate limited to 100 requests every 5 minutes
+ * 
+ *       **Note:** students can't view permissions and admins can only view their own permissions, while super_admin can view anybody's own.
  *     tags:
  *       - Permission
  *     security:
