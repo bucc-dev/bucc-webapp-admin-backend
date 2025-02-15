@@ -6,6 +6,7 @@ bucc-webapp-admin-backend
 - [Custom Error Handler](#custom-error-handler)
   - [Handler Usage](#handler-usage)
 - [Permission System](#permission-system)
+  - [Current valid resource actions based on scope](#current-valid-resource-actions-based-on-scope)
   - [Check permission function usage](#check-permission-function-usage)
 - [Authentication Middleware (authMiddleware)](#authentication-middleware-authmiddleware)
   - [Key Features](#key-features)
@@ -15,6 +16,7 @@ bucc-webapp-admin-backend
   - [Key Feature](#key-feature)
   - [Upload Usage Example](#upload-usage-example)
   - [Configuration Details](#configuration-details)
+- [Buckets](#buckets)
 - [What is left?](#what-is-left)
 
 ## Custom Error Handler
@@ -55,6 +57,36 @@ For the current code, the attributes include:
 - **Scope:** `own, others`
 
 The permissions are defined based on these attributes, allowing for fine-grained control over what actions a user can perform on specific resources. For now, only CRUD actions are specified.
+
+### Current valid resource actions based on scope
+
+> These valid actions are not the default permissions of each user. check [roleConfig.ts](./src/config/roleConfig.ts) for default user permissions
+
+```Typescript
+[
+    {
+        resource: 'announcements',
+        actions: {
+            own: ['read', 'update', 'delete', 'create'],
+            others: ['read', 'update', 'delete']
+        }
+    },
+    {
+        resource: 'users',
+        actions: {
+            own: ['read', 'update', 'delete'],
+            others: ['read', 'update', 'delete']
+        }
+    },
+    {
+        resource: 'course_materials',
+        actions: {
+            own: ['read', 'delete', 'create'],
+            others: ['read', 'delete']
+        }
+    }
+]
+```
 
 **IMPORTANT**: for every **CRUD** operation for the **API - Controller** should use the `checkUserPermission` function in the [Utils folder](./src/utils/controllerUtils.ts) - to ensure the current user has sufficient permission to complete that action.
 
@@ -168,6 +200,12 @@ announcementRouter.route('/')
 - **Naming:** Auto-generates unique filenames using `Date.now()-file.originalname`
 
 - **Content Type:** Preserves original MIME type detection
+
+## Buckets
+
+> Current buckets
+
+- **announcementmedia**
 
 ## What is left?
 
