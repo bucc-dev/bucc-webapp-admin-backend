@@ -18,7 +18,7 @@
  *               email:
  *                 type: string
  *                 format: email
- *                 example: "john.doe@school.edu"
+ *                 example: "john.doe@student.babcock.edu.ng"
  *             required:
  *               - email
  *     responses:
