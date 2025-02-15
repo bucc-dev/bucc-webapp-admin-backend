@@ -10,7 +10,8 @@
  *     tags:
  *       - Auth
  *     security:
- *       - cookieAuth: []
+ *       - accessTokenCookie: []
+ *       - refreshTokenCookie: []
  *     responses:
  *       200:
  *         description: Logged out successfully.
