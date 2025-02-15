@@ -17,7 +17,7 @@ function isValidSchoolEmail(email: string) {
 }
 
 class authController {
-    /**
+	/**
      * Refreshes the access token using the provided refresh token.
      * 
      * @param {Request} req - The request object containing cookies and user information.
@@ -83,7 +83,7 @@ class authController {
 				path: '/api/v1/auth/refresh',
 				sameSite: 'none'
 			}); // 7 days
-console.error("SUCCESSFUL REFRESH");
+
 			return res.status(200).end();
 		} catch (error) {
 			await session.abortTransaction();
