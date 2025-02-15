@@ -21,7 +21,7 @@ mongoose.connect(process.env.MONGODB_URI as string)
         console.log(`Failed to connect to mongodb: ${error}`);
     });
 
-const allowedOrigins = ['http://0.0.0.0:3000', serverURL];
+const allowedOrigins = ['http://127.0.0.1:3000', serverURL];
 app.use(cors({
     origin: allowedOrigins,
     credentials: true
