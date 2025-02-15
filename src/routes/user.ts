@@ -8,7 +8,7 @@ const userRouter = Router();
 
 userRouter.route('/:targetUserId').get(minimalRateLimiter, authMiddleware, userController.getUser);
 
-userRouter.route('/:targetUserId').delete(minimalRateLimiter, authMiddleware, userController.deleteUser);
+userRouter.route('/:targetUserId').delete(moderateRateLimiter, authMiddleware, userController.deleteUser);
 
 userRouter.route('/:targetUserId/update/role').patch(moderateRateLimiter, authMiddleware, userController.updateUserRole);
 
@@ -20,12 +20,12 @@ userRouter.route('/forgot-password').post(strictRateLimiter, userController.forg
 
 userRouter.route('/reset-password').patch(moderateRateLimiter, authMiddleware, userController.resetPassword);
 
-userRouter.route('/self/update/email-otp').post(strictRateLimiter, authMiddleware, userController.updateEmail);
+userRouter.route('/self/update/email').post(strictRateLimiter, authMiddleware, userController.updateEmail);
 
 userRouter.route('/self/update/set-new-email').patch(moderateRateLimiter, authMiddleware, userController.setNewEmail);
 
-userRouter.route('/:targetUserId/announcements').get(moderateRateLimiter, authMiddleware, announcementController.paginatedGet);
+userRouter.route('/:targetUserId/announcements').get(minimalRateLimiter, authMiddleware, announcementController.paginatedGet);
 
-userRouter.route('/:targetUserId/announcements/:announcementId').get(moderateRateLimiter, authMiddleware, announcementController.getAnnouncement);
+userRouter.route('/:targetUserId/announcements/:announcementId').get(minimalRateLimiter, authMiddleware, announcementController.getAnnouncement);
 
 export default userRouter;
