@@ -6,7 +6,9 @@
  *     description: >
  *       Checks whether the authenticated user has the required permission for a specified resource, action, and scope.
  *       Returns a boolean flag and a message indicating if the user has permission.
- *       Rate limited to 100 requests every 5 minutes
+ *       Rate limited to 100 requests every 5 minutes.
+ * 
+ *       **Access denied for all student roles**
  *     tags:
  *       - Permission
  *     security:
